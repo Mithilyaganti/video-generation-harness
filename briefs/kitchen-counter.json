@@ -1,0 +1,36 @@
+{
+  "scene_id": "kitchen-counter",
+  "setting": "a kitchen counter before anyone starts chopping",
+  "width": 640,
+  "height": 360,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#efe6d6",
+  "camera": {"kind": "pan_left", "pixels": 30},
+  "objects": [
+    {"id": "board", "kind": "board", "color": "#c49a6c", "shape": "box", "x": 180, "y": 180, "w": 180, "h": 100},
+    {"id": "tomato", "kind": "tomato", "color": "#c0392b", "shape": "sphere", "x": 400, "y": 200, "w": 54, "h": 54},
+    {"id": "knife", "kind": "knife", "color": "#b0b7c3", "shape": "blade", "x": 470, "y": 230, "w": 100, "h": 16}
+  ],
+  "plant": {
+    "id": "basil",
+    "kind": "plant",
+    "color": "#3fa34d",
+    "shape": "plant",
+    "x": 120,
+    "y": 150,
+    "w": 46,
+    "h": 60,
+    "from_frame": 4,
+    "to_frame": 9,
+    "hidden": true
+  },
+  "trap": {
+    "question": "What color is the salt shaker next to the tomato?",
+    "asked_id": "salt_shaker",
+    "asked_kind": "shaker",
+    "asked_attribute": "color",
+    "why_false": "absent",
+    "nearby_id": "tomato"
+  }
+}

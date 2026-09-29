@@ -1,0 +1,36 @@
+{
+  "scene_id": "window-sill",
+  "setting": "a pale window sill in the morning",
+  "width": 640,
+  "height": 360,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#f0e6d8",
+  "camera": {"kind": "static", "pixels": 0},
+  "objects": [
+    {"id": "candle", "kind": "candle", "color": "#f4f1ea", "shape": "stick", "x": 180, "y": 140, "w": 22, "h": 90},
+    {"id": "bowl", "kind": "bowl", "color": "#3d6fbf", "shape": "sphere", "x": 320, "y": 200, "w": 90, "h": 48},
+    {"id": "napkin", "kind": "napkin", "color": "#e07a2f", "shape": "cloth", "x": 460, "y": 210, "w": 70, "h": 46}
+  ],
+  "plant": {
+    "id": "parsley",
+    "kind": "plant",
+    "color": "#2e8b57",
+    "shape": "plant",
+    "x": 80,
+    "y": 170,
+    "w": 44,
+    "h": 58,
+    "from_frame": 10,
+    "to_frame": 16,
+    "hidden": true
+  },
+  "trap": {
+    "question": "What color is the teapot behind the candle?",
+    "asked_id": "teapot",
+    "asked_kind": "teapot",
+    "asked_attribute": "color",
+    "why_false": "absent",
+    "nearby_id": "candle"
+  }
+}
