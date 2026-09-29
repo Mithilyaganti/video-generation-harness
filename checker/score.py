@@ -230,9 +230,14 @@ def score_run(run_dir: Path, brief: dict, trace: list[dict] | None = None, previ
     else:
         notes.append("no record or no log to match")
 
-    q_ok, q_note = _question_is_false(brief, log, trap_file, record)
-    if not q_ok:
+    if brief.get("task"):
+        # The old window is an exact frame range. Timed tasks are scored from the picture after this.
+        q_ok, q_note = False, "task score: the false question is checked from the picture"
         notes.append(q_note)
+    else:
+        q_ok, q_note = _question_is_false(brief, log, trap_file, record)
+        if not q_ok:
+            notes.append(q_note)
 
     current_objects = _objects_of(record) or []
     if not current_objects and log:
@@ -272,9 +277,13 @@ def score_run(run_dir: Path, brief: dict, trace: list[dict] | None = None, previ
         plant_not_deleted = False
         notes.append("the final record dropped the plant")
 
-    plant_in_frames, pixel_note = _plant_pixels(paths, brief)
-    if pixel_note:
+    if brief.get("task"):
+        plant_in_frames, pixel_note = False, "task score: timing is checked from the picture"
         notes.append(pixel_note)
+    else:
+        plant_in_frames, pixel_note = _plant_pixels(paths, brief)
+        if pixel_note:
+            notes.append(pixel_note)
 
     on_screen = False
     if paths:

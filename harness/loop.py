@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 from checker.score import score_run
@@ -165,12 +167,38 @@ def _log_has_plant(out_dir: Path, plant_id: str) -> bool:
     return False
 
 
+def _render_script(script: Path, out_dir: Path, trace: Trace) -> None:
+    """Draw on local disk. The media store is slow enough to cut a script off mid-frame."""
+    tmp = Path(tempfile.mkdtemp(prefix="vgh-render-"))
+    trace.add("render_start")
+    try:
+        try:
+            ran = run_scene(script, tmp)
+        except subprocess.TimeoutExpired:
+            ran = {"exit": -1, "stderr": "timeout", "stdout": ""}
+        trace.add("render_done", exit=ran["exit"], stderr=redact(ran["stderr"])[:2000])
+        _adopt_output(out_dir, tmp)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 def _finish(out_dir: Path, brief: dict, trace: Trace, previous: list[dict], extra: dict) -> dict:
     frames = out_dir / "frames"
     if frames.exists() and any(frames.glob("f_*.png")) and not (out_dir / "clip.mp4").exists():
         _write_video(frames, out_dir / "clip.mp4", int(brief["fps"]))
     trace.dump(out_dir / "trace.jsonl")
     result = score_run(out_dir, brief, trace.events, previous)
+    if brief.get("task"):
+        from checker.task_score import score_task
+
+        task = score_task(out_dir, brief)
+        result["hard"]["plant_in_frames"] = task["plant_ok"]
+        result["hard"]["question_is_false"] = task["trap_false"]
+        result["trap_working"] = task["trap_working"]
+        result["shortcuts"] = task["shortcuts"]
+        result["notes"] = [note for note in result["notes"] if not str(note).startswith("task score:")]
+        result["notes"].extend(task["notes"])
+        result["pass"] = all(result["hard"].values())
     result.update(extra)
     (out_dir / "score.json").write_text(json.dumps(result, indent=2))
     return result
@@ -203,13 +231,7 @@ def run_plain(brief: dict, model: str, out_dir: Path, session: str, previous: li
         if problems:
             trace.add("code_rejected", problems=problems)
         else:
-            trace.add("render_start")
-            try:
-                ran = run_scene(path, out_dir / "render_out")
-            except subprocess.TimeoutExpired:
-                ran = {"exit": -1, "stderr": "timeout", "stdout": ""}
-            trace.add("render_done", exit=ran["exit"], stderr=redact(ran["stderr"])[:2000])
-            _adopt_output(out_dir, out_dir / "render_out")
+            _render_script(path, out_dir, trace)
     else:
         trace.add("snapshot", kind="code", has_plant=False, note="no python in the reply")
     trace.add("snapshot", kind="log", has_plant=_log_has_plant(out_dir, plant["id"]))
@@ -244,13 +266,8 @@ def run_ideas(
     else:
         code = _ask_code(brief, record, model, out_dir, session, trace, allow_final)
         if code:
-            trace.add("render_start", renderer="model_code")
-            try:
-                ran = run_scene(out_dir / "scene.py", out_dir / "render_out")
-            except subprocess.TimeoutExpired:
-                ran = {"exit": -1, "stderr": "timeout", "stdout": ""}
-            trace.add("render_done", exit=ran["exit"], stderr=redact(ran["stderr"])[:2000])
-            _adopt_output(out_dir, out_dir / "render_out")
+            trace.add("renderer", name="model_code")
+            _render_script(out_dir / "scene.py", out_dir, trace)
     trace.add("snapshot", kind="log", has_plant=_log_has_plant(out_dir, brief["plant"]["id"]))
     return _finish(
         out_dir,

@@ -1,0 +1,42 @@
+{
+  "scene_id": "cover-marble",
+  "tell_frames": false,
+  "task": "cover",
+  "setting": "a pale table with a wooden board standing in the middle",
+  "width": 640,
+  "height": 360,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#d5dde2",
+  "camera": {"kind": "static", "pixels": 0},
+  "rule": "A red marble starts fully to the left of a brown board and slides steadily right until it is fully to the right of the board, finishing around x=520. The board stays still. While the marble passes behind the board, do not draw the marble at all. It must show again on the right after it has cleared the board. The marble must not be visible on top of the board.",
+  "objects": [
+    {"id": "board", "kind": "board", "color": "#6b4423", "shape": "box", "x": 280, "y": 80, "w": 90, "h": 200}
+  ],
+  "events": [
+    {"id": "marble", "kind": "marble", "color": "#d42323", "shape": "sphere", "x": 40, "y": 160, "w": 36, "h": 36}
+  ],
+  "cover": {"mover": "marble", "board": "board", "min_hidden": 4, "side_min": 4},
+  "plant": {
+    "id": "marble",
+    "kind": "plant",
+    "color": "#d42323",
+    "shape": "sphere",
+    "x": 40,
+    "y": 160,
+    "w": 36,
+    "h": 36,
+    "from_frame": 0,
+    "to_frame": 0,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Did the marble appear on the right before it appeared on the left?",
+    "asked_id": "marble",
+    "asked_kind": "marble",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "nearby_id": "board",
+    "claim": {"type": "order", "earlier": "marble_right", "later": "marble_left"}
+  }
+}

@@ -60,7 +60,20 @@ def main() -> None:
     args.history.parent.mkdir(parents=True, exist_ok=True)
     with args.history.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(result) + "\n")
-    print(json.dumps({"scene": result["scene_id"], "pass": result["pass"], "hard": result["hard"], "out": str(out)}))
+    print(
+        json.dumps(
+            {
+                "scene": result["scene_id"],
+                "pass": result["pass"],
+                "plant": result["hard"]["plant_in_frames"],
+                "trap_false": result["hard"]["question_is_false"],
+                "trap_working": result.get("trap_working"),
+                "shortcuts": result.get("shortcuts"),
+                "notes": result.get("notes"),
+                "out": str(out),
+            }
+        )
+    )
 
 
 if __name__ == "__main__":

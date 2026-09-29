@@ -115,6 +115,9 @@ def main() -> None:
             raise SystemExit("a repeated scene still counted as new objects")
         print("rejected a repeated scene")
 
+    from checker.task_score import self_check
+
+    self_check()
     print("selftest ok")
 
 

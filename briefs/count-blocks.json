@@ -1,0 +1,53 @@
+{
+  "scene_id": "count-blocks",
+  "tell_frames": false,
+  "task": "count",
+  "setting": "a pale table with a blue bowl",
+  "width": 640,
+  "height": 360,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#efe6d4",
+  "camera": {"kind": "static", "pixels": 0},
+  "rule": "Two separate red blocks are visible for a short moment near the start, then both leave. About 0.8 seconds after they have gone, four separate red blocks appear for a short moment, then they leave. Do not leave any red blocks on screen between those two moments. Do not stack or overlap the blocks. A blue bowl stays visible the whole time.",
+  "objects": [
+    {"id": "bowl", "kind": "bowl", "color": "#2f5fa8", "shape": "cup", "x": 460, "y": 170, "w": 80, "h": 60}
+  ],
+  "events": [
+    {"id": "block", "kind": "block", "color": "#d42323", "shape": "box", "x": 80, "y": 160, "w": 40, "h": 40}
+  ],
+  "count": {
+    "color_id": "block",
+    "unit_w": 40,
+    "unit_h": 40,
+    "first": 2,
+    "second": 4,
+    "min_gap": 8,
+    "max_gap": 14,
+    "min_span": 3,
+    "max_span": 14,
+    "trigger_start_max": 12
+  },
+  "plant": {
+    "id": "block",
+    "kind": "plant",
+    "color": "#d42323",
+    "shape": "box",
+    "x": 80,
+    "y": 160,
+    "w": 40,
+    "h": 40,
+    "from_frame": 0,
+    "to_frame": 0,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Were there four red blocks before there were two?",
+    "asked_id": "block",
+    "asked_kind": "block",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "nearby_id": "bowl",
+    "claim": {"type": "order", "earlier": "blocks_four", "later": "blocks_two"}
+  }
+}

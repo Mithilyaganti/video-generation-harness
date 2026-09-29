@@ -18,14 +18,41 @@ def load_brief(scene_id: str) -> dict:
     return json.loads(path.read_text())
 
 
-def prose(brief: dict) -> str:
-    camera = brief["camera"]
+def _camera_line(camera: dict) -> str:
     if camera["kind"] == "static":
-        camera_line = "The camera stays still."
-    elif camera["kind"] == "pan_right":
-        camera_line = f"The camera pans right by about {camera['pixels']} pixels across the clip."
-    else:
-        camera_line = f"The camera pans left by about {camera['pixels']} pixels across the clip."
+        return "The camera stays still."
+    if camera["kind"] == "pan_right":
+        return f"The camera pans right by about {camera['pixels']} pixels across the clip."
+    return f"The camera pans left by about {camera['pixels']} pixels across the clip."
+
+
+def _rule_prose(brief: dict) -> str:
+    """Timing stays in the rule sentence. Frame numbers are not copied into the prompt."""
+    lines = [
+        f"Scene {brief['scene_id']}: {brief['setting']}.",
+        f"Picture size {brief['width']} by {brief['height']}. {brief['frame_count']} frames. {brief['fps']} frames a second.",
+        f"Background color {brief['background']}.",
+        _camera_line(brief["camera"]),
+        brief["rule"],
+        "Draw these. Do not print words on the picture:",
+    ]
+    for obj in list(brief["objects"]) + list(brief.get("events") or []):
+        lines.append(
+            f"- {obj['id']}, a {obj['kind']}, color {obj['color']}, shape {obj['shape']}, "
+            f"around x={obj['x']}, y={obj['y']}, size {obj['w']} by {obj['h']}."
+        )
+    trap = brief["trap"]
+    lines.append(f'False question to save with the clip: "{trap["question"]}"')
+    lines.append("Save that question exactly.")
+    lines.append("The picture has to follow the rule above, so the question stays a false claim about this clip.")
+    lines.append("Do not write words on the picture.")
+    return "\n".join(lines)
+
+
+def prose(brief: dict) -> str:
+    if brief.get("tell_frames") is False:
+        return _rule_prose(brief)
+    camera_line = _camera_line(brief["camera"])
     lines = [
         f"Scene {brief['scene_id']}: {brief['setting']}.",
         f"Picture size {brief['width']} by {brief['height']}. {brief['frame_count']} frames. {brief['fps']} frames a second.",
