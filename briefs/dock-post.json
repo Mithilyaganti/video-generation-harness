@@ -1,0 +1,36 @@
+{
+  "scene_id": "dock-post",
+  "setting": "a wooden dock post in bright noon light",
+  "width": 640,
+  "height": 360,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#87b8d4",
+  "camera": {"kind": "static", "pixels": 0},
+  "objects": [
+    {"id": "buoy", "kind": "buoy", "color": "#e07a2f", "shape": "sphere", "x": 180, "y": 150, "w": 72, "h": 72},
+    {"id": "rope", "kind": "rope", "color": "#c4a574", "shape": "stick", "x": 280, "y": 230, "w": 150, "h": 16},
+    {"id": "crate", "kind": "crate", "color": "#f4f1ea", "shape": "box", "x": 450, "y": 170, "w": 100, "h": 84}
+  ],
+  "plant": {
+    "id": "kelp",
+    "kind": "plant",
+    "color": "#1a6b45",
+    "shape": "plant",
+    "x": 90,
+    "y": 160,
+    "w": 46,
+    "h": 62,
+    "from_frame": 22,
+    "to_frame": 28,
+    "hidden": true
+  },
+  "trap": {
+    "question": "What color is the fishing rod beside the buoy?",
+    "asked_id": "fishing_rod",
+    "asked_kind": "rod",
+    "asked_attribute": "color",
+    "why_false": "absent",
+    "nearby_id": "buoy"
+  }
+}
