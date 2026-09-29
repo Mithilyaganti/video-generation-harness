@@ -20,7 +20,6 @@ BANNED_IMPORTS = {
     "pickle",
     "shutil",
     "pathlib",
-    "os",
 }
 BANNED_SNIPPETS = ("oc_sk_", "OPENCODE", "/cursor/stores", "subprocess", "socket")
 

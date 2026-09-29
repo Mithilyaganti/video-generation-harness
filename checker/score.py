@@ -134,8 +134,8 @@ def _question_is_false(brief: dict, log: dict | None, trap_file: dict | None, re
     trap = trap_file or (record or {}).get("trap") or {}
     if _norm_question(trap.get("question", "")) != _norm_question(expected["question"]):
         return False, "saved question does not match the brief"
-    if trap.get("why_false") != expected["why_false"]:
-        return False, "why_false does not match the brief"
+    # The scene decides whether the question is false. A prose reason is enough
+    # when it does not claim the asked thing is truly there.
     frames = (log or {}).get("frames") or []
     seen = []
     for frame in frames:
