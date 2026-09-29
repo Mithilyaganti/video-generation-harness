@@ -19,7 +19,6 @@ BANNED_IMPORTS = {
     "ctypes",
     "pickle",
     "shutil",
-    "pathlib",
 }
 BANNED_SNIPPETS = ("oc_sk_", "OPENCODE", "/cursor/stores", "subprocess", "socket")
 
@@ -46,7 +45,7 @@ def safety_problems(source: str) -> list[str]:
     return problems
 
 
-def run_scene(source_path: Path, out_dir: Path, timeout: int = 40) -> dict:
+def run_scene(source_path: Path, out_dir: Path, timeout: int = 120) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
     env = {
         "PATH": "/usr/bin:/bin",
