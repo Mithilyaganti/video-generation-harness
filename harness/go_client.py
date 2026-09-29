@@ -51,6 +51,8 @@ def chat(model: str, messages: list[dict], session: str, max_tokens: int = 2500,
         "messages": messages,
         "max_tokens": max_tokens,
         "temperature": 0.2,
+        # Default thinking filled the whole token budget and returned no clip.
+        "reasoning_effort": "low",
     }
     request = urllib.request.Request(
         base + "/chat/completions",
@@ -81,10 +83,12 @@ def chat(model: str, messages: list[dict], session: str, max_tokens: int = 2500,
             else:
                 texts.append(str(part))
         content = "\n".join(texts)
-    if not content:
-        content = message.get("reasoning") or ""
+    reasoning = message.get("reasoning_content") or message.get("reasoning") or ""
+    if not isinstance(reasoning, str):
+        reasoning = str(reasoning)
     return {
         "content": content or "",
+        "reasoning_len": len(reasoning),
         "finish_reason": choice.get("finish_reason"),
         "usage": body.get("usage") or {},
         "model": body.get("model") or model,
