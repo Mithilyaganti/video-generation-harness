@@ -1,0 +1,80 @@
+{
+  "scene_id": "pier-bucket",
+  "tell_frames": false,
+  "setting": "a pier at dusk",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#1a2830",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A coil is visible for about the first second, then it is gone. Later, a bucket appears and stays for about two seconds, then it is gone. The bucket does not appear before the coil. A post stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "post",
+      "kind": "post",
+      "color": "#c47a3a",
+      "shape": "box",
+      "x": 20,
+      "y": 100,
+      "w": 64,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "coil",
+      "kind": "coil",
+      "color": "#d7dbe2",
+      "shape": "box",
+      "x": 20,
+      "y": 16,
+      "w": 56,
+      "h": 56,
+      "from_frame": 3,
+      "to_frame": 13
+    },
+    {
+      "id": "bucket",
+      "kind": "bucket",
+      "color": "#3f7cac",
+      "shape": "box",
+      "x": 176,
+      "y": 24,
+      "w": 72,
+      "h": 64,
+      "from_frame": 18,
+      "to_frame": 41
+    }
+  ],
+  "plant": {
+    "id": "bucket",
+    "kind": "bucket",
+    "color": "#3f7cac",
+    "shape": "box",
+    "x": 176,
+    "y": 24,
+    "w": 72,
+    "h": 64,
+    "from_frame": 18,
+    "to_frame": 41,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the bucket appear before the coil?",
+    "asked_id": "bucket",
+    "asked_kind": "bucket",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The coil is already on the pier when the bucket shows up.",
+    "nearby_id": "post",
+    "earlier": "bucket",
+    "later": "coil",
+    "true_key": "The bucket appears before the coil."
+  }
+}

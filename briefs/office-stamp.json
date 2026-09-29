@@ -1,0 +1,80 @@
+{
+  "scene_id": "office-stamp",
+  "tell_frames": false,
+  "setting": "a small office desk",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#22262c",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A stapler is visible for about the first second, then it is gone. Later, a stamp appears and stays for about two seconds, then it is gone. The stamp does not appear before the stapler. A folder stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "folder",
+      "kind": "folder",
+      "color": "#3d8f62",
+      "shape": "box",
+      "x": 20,
+      "y": 110,
+      "w": 64,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "stapler",
+      "kind": "stapler",
+      "color": "#d5d8de",
+      "shape": "box",
+      "x": 20,
+      "y": 18,
+      "w": 56,
+      "h": 56,
+      "from_frame": 0,
+      "to_frame": 9
+    },
+    {
+      "id": "stamp",
+      "kind": "stamp",
+      "color": "#e2b33a",
+      "shape": "box",
+      "x": 184,
+      "y": 24,
+      "w": 72,
+      "h": 64,
+      "from_frame": 13,
+      "to_frame": 36
+    }
+  ],
+  "plant": {
+    "id": "stamp",
+    "kind": "stamp",
+    "color": "#e2b33a",
+    "shape": "box",
+    "x": 184,
+    "y": 24,
+    "w": 72,
+    "h": 64,
+    "from_frame": 13,
+    "to_frame": 36,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the stamp appear before the stapler?",
+    "asked_id": "stamp",
+    "asked_kind": "stamp",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The stapler is already on the desk when the stamp shows up.",
+    "nearby_id": "folder",
+    "earlier": "stamp",
+    "later": "stapler",
+    "true_key": "The stamp appears before the stapler."
+  }
+}

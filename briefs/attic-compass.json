@@ -1,0 +1,80 @@
+{
+  "scene_id": "attic-compass",
+  "tell_frames": false,
+  "setting": "a dusty attic trunk",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#1c1814",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A candle is visible for about the first second, then it is gone. Later, a compass appears and stays for about two seconds, then it is gone. The compass does not appear before the candle. A chest stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "chest",
+      "kind": "chest",
+      "color": "#c4a574",
+      "shape": "box",
+      "x": 18,
+      "y": 112,
+      "w": 64,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "candle",
+      "kind": "candle",
+      "color": "#f0d070",
+      "shape": "box",
+      "x": 18,
+      "y": 16,
+      "w": 56,
+      "h": 56,
+      "from_frame": 0,
+      "to_frame": 11
+    },
+    {
+      "id": "compass",
+      "kind": "compass",
+      "color": "#e8eef2",
+      "shape": "box",
+      "x": 190,
+      "y": 22,
+      "w": 72,
+      "h": 64,
+      "from_frame": 14,
+      "to_frame": 37
+    }
+  ],
+  "plant": {
+    "id": "compass",
+    "kind": "compass",
+    "color": "#e8eef2",
+    "shape": "box",
+    "x": 190,
+    "y": 22,
+    "w": 72,
+    "h": 64,
+    "from_frame": 14,
+    "to_frame": 37,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the compass appear before the candle?",
+    "asked_id": "compass",
+    "asked_kind": "compass",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The candle is already lit when the compass shows up.",
+    "nearby_id": "chest",
+    "earlier": "compass",
+    "later": "candle",
+    "true_key": "The compass appears before the candle."
+  }
+}
