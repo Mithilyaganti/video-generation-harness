@@ -47,6 +47,8 @@ def safety_problems(source: str) -> list[str]:
 
 def run_scene(source_path: Path, out_dir: Path, timeout: int = 120) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
+    # Some scripts save the first frame without creating the folder.
+    (out_dir / "frames").mkdir(parents=True, exist_ok=True)
     env = {
         "PATH": "/usr/bin:/bin",
         "HOME": "/tmp",

@@ -1,0 +1,54 @@
+{
+  "scene_id": "buried-speck",
+  "tell_frames": false,
+  "task": "delay",
+  "pixels_are_enough": true,
+  "setting": "a night dock with a coil of rope",
+  "width": 640,
+  "height": 360,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#1e2830",
+  "camera": {"kind": "static", "pixels": 0},
+  "rule": "A red lantern flares for a short moment near the start, then it is out. About one second after the flare has ended, a small white speck, color #f4f4f4, about 16 by 16, shows near the middle for less than half a second and then is gone. It must not show during the flare. A tan coil of rope stays visible the whole time.",
+  "objects": [
+    {"id": "rope", "kind": "rope", "color": "#c2a36b", "shape": "box", "x": 450, "y": 170, "w": 120, "h": 48}
+  ],
+  "events": [
+    {"id": "lantern", "kind": "lantern", "color": "#b43232", "shape": "box", "x": 80, "y": 110, "w": 40, "h": 70},
+    {"id": "speck", "kind": "speck", "color": "#f4f4f4", "shape": "box", "x": 300, "y": 160, "w": 16, "h": 16, "silent": true}
+  ],
+  "delay": {
+    "trigger": "lantern",
+    "plant": "speck",
+    "min_gap": 8,
+    "max_gap": 16,
+    "min_span": 2,
+    "max_span": 6,
+    "trigger_max_span": 10,
+    "trigger_start_max": 8,
+    "gap_words": "about one second"
+  },
+  "plant": {
+    "id": "speck",
+    "kind": "speck",
+    "color": "#f4f4f4",
+    "shape": "box",
+    "x": 300,
+    "y": 160,
+    "w": 16,
+    "h": 16,
+    "from_frame": 0,
+    "to_frame": 0,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Did the speck appear before the lantern?",
+    "asked_id": "speck",
+    "asked_kind": "speck",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "nearby_id": "rope",
+    "claim": {"type": "order", "earlier": "speck", "later": "lantern"}
+  }
+}

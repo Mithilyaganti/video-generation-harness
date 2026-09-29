@@ -294,7 +294,7 @@ def score_delay(run_dir: Path, brief: dict) -> dict:
         notes.append("the plant and the earlier object are on screen together")
     if len(trigger_runs) != 1 or len(plant_runs) != 1:
         plant_ok = False
-        notes.append(f"expected one short appearance each, saw trigger {trigger_runs} plant {plant_runs}")
+        notes.append(f"expected one short appearance each, saw {trigger} {trigger_runs} and {plant} {plant_runs}")
     else:
         trig, leaf = trigger_runs[0], plant_runs[0]
         gap = leaf[0] - trig[1] - 1
@@ -842,7 +842,7 @@ def _shrink(brief: dict, count: int) -> dict:
 def _check_harder_prompts() -> None:
     from harness.briefs import load_brief, prose
 
-    for scene_id in ("order-band", "reappear-balls", "pan-moth", "buried-glint"):
+    for scene_id in ("order-band", "reappear-balls", "pan-moth", "buried-glint", "buried-mote", "buried-speck"):
         text = prose(load_brief(scene_id)).lower()
         if "plant" in text or "from_frame" in text or "through" in text:
             raise SystemExit(f"{scene_id} prompt names a plant or gives frame numbers")
