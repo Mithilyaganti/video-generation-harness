@@ -1,0 +1,25 @@
+{
+  "chrome": "Chrome/148.0.7778.96",
+  "scenes": {
+    "shed-shelf": {
+      "gl": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "errors": [],
+      "frames": 16
+    },
+    "market-stall": {
+      "gl": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "errors": [],
+      "frames": 16
+    },
+    "platform-bench": {
+      "gl": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "errors": [],
+      "frames": 16
+    },
+    "tank-glass": {
+      "gl": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "errors": [],
+      "frames": 16
+    }
+  }
+}
