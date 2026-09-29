@@ -1,0 +1,36 @@
+{
+  "scene_id": "desk-mug",
+  "setting": "a wooden desk under a warm lamp",
+  "width": 640,
+  "height": 360,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#cbb892",
+  "camera": {"kind": "pan_right", "pixels": 36},
+  "objects": [
+    {"id": "mug", "kind": "mug", "color": "#e07a2f", "shape": "cup", "x": 300, "y": 170, "w": 74, "h": 84},
+    {"id": "notebook", "kind": "notebook", "color": "#2f5fa8", "shape": "book", "x": 420, "y": 190, "w": 110, "h": 72},
+    {"id": "pencil", "kind": "pencil", "color": "#e2c14a", "shape": "stick", "x": 250, "y": 250, "w": 90, "h": 14}
+  ],
+  "plant": {
+    "id": "fern",
+    "kind": "plant",
+    "color": "#2f7d4a",
+    "shape": "plant",
+    "x": 120,
+    "y": 188,
+    "w": 48,
+    "h": 64,
+    "from_frame": 8,
+    "to_frame": 14,
+    "hidden": true
+  },
+  "trap": {
+    "question": "What color is the water bottle beside the mug?",
+    "asked_id": "water_bottle",
+    "asked_kind": "bottle",
+    "asked_attribute": "color",
+    "why_false": "absent",
+    "nearby_id": "mug"
+  }
+}

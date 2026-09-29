@@ -1,0 +1,51 @@
+{
+  "scene_id": "delay-cart",
+  "tell_frames": false,
+  "task": "delay",
+  "setting": "a pale lane with a grey crate in the corner",
+  "width": 640,
+  "height": 360,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#d7d2c8",
+  "camera": {"kind": "static", "pixels": 0},
+  "rule": "A blue cart appears for a short moment near the start, then it is gone. About 0.8 seconds after the cart has left, an orange marigold appears for a short moment, then it is gone. The marigold must not be on screen at the same time as the cart. A grey crate stays visible the whole time.",
+  "objects": [
+    {"id": "crate", "kind": "crate", "color": "#8d9096", "shape": "box", "x": 500, "y": 180, "w": 80, "h": 70}
+  ],
+  "events": [
+    {"id": "cart", "kind": "cart", "color": "#2a62c9", "shape": "box", "x": 70, "y": 160, "w": 110, "h": 64, "role": "trigger"},
+    {"id": "marigold", "kind": "plant", "color": "#e38b2f", "shape": "plant", "x": 250, "y": 150, "w": 52, "h": 68, "role": "plant"}
+  ],
+  "delay": {
+    "trigger": "cart",
+    "plant": "marigold",
+    "min_gap": 8,
+    "max_gap": 14,
+    "min_span": 3,
+    "max_span": 14,
+    "trigger_start_max": 12
+  },
+  "plant": {
+    "id": "marigold",
+    "kind": "plant",
+    "color": "#e38b2f",
+    "shape": "plant",
+    "x": 250,
+    "y": 150,
+    "w": 52,
+    "h": 68,
+    "from_frame": 0,
+    "to_frame": 0,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Did the marigold appear before the cart?",
+    "asked_id": "marigold",
+    "asked_kind": "plant",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "nearby_id": "crate",
+    "claim": {"type": "order", "earlier": "marigold", "later": "cart"}
+  }
+}

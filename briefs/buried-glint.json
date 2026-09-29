@@ -1,0 +1,54 @@
+{
+  "scene_id": "buried-glint",
+  "tell_frames": false,
+  "task": "delay",
+  "pixels_are_enough": true,
+  "setting": "a kitchen counter with a brown tray",
+  "width": 640,
+  "height": 360,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#efe6d4",
+  "camera": {"kind": "static", "pixels": 0},
+  "rule": "A blue kettle lets off a short whistle near the start, then it is quiet. About one second after the whistle has gone, a small orange glint, color #e38b2f, about 16 by 16, shows near the middle of the picture for less than half a second and then is gone. It must not show while the kettle is whistling. A brown tray stays visible the whole time.",
+  "objects": [
+    {"id": "tray", "kind": "tray", "color": "#6b4423", "shape": "box", "x": 470, "y": 180, "w": 110, "h": 36}
+  ],
+  "events": [
+    {"id": "kettle", "kind": "kettle", "color": "#2a62c9", "shape": "cup", "x": 80, "y": 140, "w": 70, "h": 80},
+    {"id": "glint", "kind": "glint", "color": "#e38b2f", "shape": "box", "x": 300, "y": 160, "w": 16, "h": 16, "silent": true}
+  ],
+  "delay": {
+    "trigger": "kettle",
+    "plant": "glint",
+    "min_gap": 8,
+    "max_gap": 16,
+    "min_span": 2,
+    "max_span": 6,
+    "trigger_max_span": 10,
+    "trigger_start_max": 8,
+    "gap_words": "about one second"
+  },
+  "plant": {
+    "id": "glint",
+    "kind": "glint",
+    "color": "#e38b2f",
+    "shape": "box",
+    "x": 300,
+    "y": 160,
+    "w": 16,
+    "h": 16,
+    "from_frame": 0,
+    "to_frame": 0,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Did the glint appear before the kettle?",
+    "asked_id": "glint",
+    "asked_kind": "glint",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "nearby_id": "tray",
+    "claim": {"type": "order", "earlier": "glint", "later": "kettle"}
+  }
+}

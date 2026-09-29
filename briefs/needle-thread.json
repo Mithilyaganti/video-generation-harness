@@ -1,0 +1,52 @@
+{
+  "scene_id": "needle-thread",
+  "tell_frames": false,
+  "task": "delay",
+  "setting": "a pale sewing table with a brown spool",
+  "width": 640,
+  "height": 360,
+  "fps": 12,
+  "frame_count": 96,
+  "background": "#e4e0d6",
+  "camera": {"kind": "static", "pixels": 0},
+  "rule": "A blue bell appears for a short moment near the start, then it is gone. About two seconds after the bell has left, a thin yellow thread appears for about a quarter of a second and no longer than half a second, then it is gone. The thread must not be on screen at the same time as the bell. A brown spool stays visible the whole time.",
+  "objects": [
+    {"id": "spool", "kind": "spool", "color": "#6b4423", "shape": "box", "x": 500, "y": 150, "w": 50, "h": 70}
+  ],
+  "events": [
+    {"id": "bell", "kind": "bell", "color": "#2a62c9", "shape": "sphere", "x": 80, "y": 140, "w": 64, "h": 64, "role": "trigger"},
+    {"id": "thread", "kind": "plant", "color": "#f0d030", "shape": "stick", "x": 280, "y": 160, "w": 8, "h": 36, "role": "plant"}
+  ],
+  "delay": {
+    "trigger": "bell",
+    "plant": "thread",
+    "min_gap": 18,
+    "max_gap": 30,
+    "min_span": 2,
+    "max_span": 6,
+    "trigger_max_span": 14,
+    "trigger_start_max": 12
+  },
+  "plant": {
+    "id": "thread",
+    "kind": "plant",
+    "color": "#f0d030",
+    "shape": "stick",
+    "x": 280,
+    "y": 160,
+    "w": 8,
+    "h": 36,
+    "from_frame": 0,
+    "to_frame": 0,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Did the thread appear before the bell?",
+    "asked_id": "thread",
+    "asked_kind": "plant",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "nearby_id": "spool",
+    "claim": {"type": "order", "earlier": "thread", "later": "bell"}
+  }
+}

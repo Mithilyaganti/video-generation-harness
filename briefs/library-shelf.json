@@ -1,0 +1,38 @@
+{
+  "scene_id": "library-shelf",
+  "setting": "a low shelf in a reading room",
+  "width": 640,
+  "height": 360,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#d7d0c4",
+  "camera": {"kind": "pan_right", "pixels": 24},
+  "objects": [
+    {"id": "lamp", "kind": "lamp", "color": "#1d6b3a", "shape": "cup", "x": 180, "y": 120, "w": 60, "h": 110},
+    {"id": "book", "kind": "book", "color": "#8a5a3b", "shape": "book", "x": 300, "y": 190, "w": 90, "h": 60},
+    {"id": "cup", "kind": "cup", "color": "#f7f7f5", "shape": "cup", "x": 450, "y": 180, "w": 50, "h": 60}
+  ],
+  "plant": {
+    "id": "cactus",
+    "kind": "plant",
+    "color": "#c6f25a",
+    "shape": "plant",
+    "x": 530,
+    "y": 160,
+    "w": 40,
+    "h": 70,
+    "from_frame": 15,
+    "to_frame": 20,
+    "hidden": true
+  },
+  "trap": {
+    "question": "What color is the red lamp?",
+    "asked_id": "lamp",
+    "asked_kind": "lamp",
+    "asked_attribute": "color",
+    "claimed_value": "red",
+    "true_value": "green",
+    "why_false": "wrong_attribute",
+    "nearby_id": "lamp"
+  }
+}

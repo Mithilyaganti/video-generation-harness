@@ -1,0 +1,55 @@
+{
+  "scene_id": "reappear-balls",
+  "tell_frames": false,
+  "task": "reappear",
+  "pixels_are_enough": true,
+  "setting": "a pale table with a brown board in the middle",
+  "width": 640,
+  "height": 360,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#d5dde2",
+  "camera": {"kind": "static", "pixels": 0},
+  "rule": "One red ball starts fully to the left of a brown board and rolls behind it. Do not draw the ball while it is behind the board. When it comes out on the right, three red balls are there, not one. They stay a short moment and then leave. Each ball is about 28 by 28, color #d42323. The board stays still.",
+  "objects": [
+    {"id": "board", "kind": "board", "color": "#6b4423", "shape": "box", "x": 280, "y": 70, "w": 80, "h": 210}
+  ],
+  "events": [
+    {"id": "ball", "kind": "ball", "color": "#d42323", "shape": "sphere", "x": 60, "y": 160, "w": 28, "h": 28, "silent": true}
+  ],
+  "reappear": {
+    "mover": "ball",
+    "board": "board",
+    "unit_w": 28,
+    "unit_h": 28,
+    "enter": 1,
+    "leave": 3,
+    "enter_id": "balls_one",
+    "leave_id": "balls_three",
+    "min_hidden": 4,
+    "side_min": 3,
+    "first_start_max": 12
+  },
+  "plant": {
+    "id": "ball",
+    "kind": "ball",
+    "color": "#d42323",
+    "shape": "sphere",
+    "x": 60,
+    "y": 160,
+    "w": 28,
+    "h": 28,
+    "from_frame": 0,
+    "to_frame": 0,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Did the three balls appear before the single ball?",
+    "asked_id": "ball",
+    "asked_kind": "ball",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "nearby_id": "board",
+    "claim": {"type": "order", "earlier": "balls_three", "later": "balls_one"}
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "scene_id": "workshop-bench",
+  "setting": "a metal workshop bench",
+  "width": 640,
+  "height": 360,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#8d9399",
+  "camera": {"kind": "static", "pixels": 0},
+  "objects": [
+    {"id": "toolbox", "kind": "toolbox", "color": "#c0392b", "shape": "box", "x": 250, "y": 150, "w": 130, "h": 90},
+    {"id": "wrench", "kind": "wrench", "color": "#5e666b", "shape": "stick", "x": 420, "y": 230, "w": 110, "h": 18},
+    {"id": "cloth", "kind": "cloth", "color": "#f2f2f0", "shape": "cloth", "x": 140, "y": 220, "w": 80, "h": 50}
+  ],
+  "plant": {
+    "id": "succulent",
+    "kind": "plant",
+    "color": "#7a3ea8",
+    "shape": "plant",
+    "x": 470,
+    "y": 150,
+    "w": 44,
+    "h": 58,
+    "from_frame": 20,
+    "to_frame": 26,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Is the screwdriver to the left or the right of the wrench?",
+    "asked_id": "screwdriver",
+    "asked_kind": "screwdriver",
+    "asked_attribute": "side",
+    "why_false": "absent",
+    "nearby_id": "wrench"
+  }
+}

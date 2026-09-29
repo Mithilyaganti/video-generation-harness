@@ -1,0 +1,54 @@
+{
+  "scene_id": "buried-mote",
+  "tell_frames": false,
+  "task": "delay",
+  "pixels_are_enough": true,
+  "setting": "a dark shelf with a grey book",
+  "width": 640,
+  "height": 360,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#2c3138",
+  "camera": {"kind": "static", "pixels": 0},
+  "rule": "A green lamp gives one short blink near the start, then it is dark. About 0.8 seconds after the blink has ended, a small purple mote, color #c23b8a, about 16 by 16, shows near the middle for less than half a second and then is gone. It must not show during the blink. A grey book stays visible the whole time.",
+  "objects": [
+    {"id": "book", "kind": "book", "color": "#8d9096", "shape": "book", "x": 460, "y": 150, "w": 100, "h": 70}
+  ],
+  "events": [
+    {"id": "lamp", "kind": "lamp", "color": "#3d8c4a", "shape": "box", "x": 70, "y": 120, "w": 48, "h": 90},
+    {"id": "mote", "kind": "mote", "color": "#c23b8a", "shape": "box", "x": 300, "y": 160, "w": 16, "h": 16, "silent": true}
+  ],
+  "delay": {
+    "trigger": "lamp",
+    "plant": "mote",
+    "min_gap": 8,
+    "max_gap": 14,
+    "min_span": 2,
+    "max_span": 6,
+    "trigger_max_span": 10,
+    "trigger_start_max": 8,
+    "gap_words": "about 0.8 seconds"
+  },
+  "plant": {
+    "id": "mote",
+    "kind": "mote",
+    "color": "#c23b8a",
+    "shape": "box",
+    "x": 300,
+    "y": 160,
+    "w": 16,
+    "h": 16,
+    "from_frame": 0,
+    "to_frame": 0,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Did the mote appear before the lamp?",
+    "asked_id": "mote",
+    "asked_kind": "mote",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "nearby_id": "book",
+    "claim": {"type": "order", "earlier": "mote", "later": "lamp"}
+  }
+}

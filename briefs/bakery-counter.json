@@ -1,0 +1,36 @@
+{
+  "scene_id": "bakery-counter",
+  "setting": "a bakery counter before the shop opens",
+  "width": 640,
+  "height": 360,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#f3e6c8",
+  "camera": {"kind": "pan_left", "pixels": 28},
+  "objects": [
+    {"id": "loaf", "kind": "loaf", "color": "#c48a4a", "shape": "sphere", "x": 200, "y": 180, "w": 120, "h": 70},
+    {"id": "mixer", "kind": "mixer", "color": "#d0d4dc", "shape": "box", "x": 370, "y": 140, "w": 86, "h": 110},
+    {"id": "box", "kind": "box", "color": "#d4577a", "shape": "box", "x": 490, "y": 190, "w": 72, "h": 64}
+  ],
+  "plant": {
+    "id": "thyme",
+    "kind": "plant",
+    "color": "#3f8f4a",
+    "shape": "plant",
+    "x": 110,
+    "y": 150,
+    "w": 44,
+    "h": 56,
+    "from_frame": 2,
+    "to_frame": 8,
+    "hidden": true
+  },
+  "trap": {
+    "question": "What color is the rolling pin next to the loaf?",
+    "asked_id": "rolling_pin",
+    "asked_kind": "pin",
+    "asked_attribute": "color",
+    "why_false": "absent",
+    "nearby_id": "loaf"
+  }
+}
