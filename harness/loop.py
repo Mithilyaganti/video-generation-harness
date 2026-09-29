@@ -183,14 +183,14 @@ def run_plain(brief: dict, model: str, out_dir: Path, session: str, previous: li
     trace.add("prompt", step="plain", text=prompt)
     reply = chat(model, [{"role": "user", "content": prompt}], session, max_tokens=6000, allow_final=allow_final)
     text = redact(reply["content"])
-        trace.add(
-            "response",
-            step="plain",
-            finish_reason=reply.get("finish_reason"),
-            reasoning_len=reply.get("reasoning_len"),
-            usage=reply.get("usage") or {},
-            text=text[:12000],
-        )
+    trace.add(
+        "response",
+        step="plain",
+        finish_reason=reply.get("finish_reason"),
+        reasoning_len=reply.get("reasoning_len"),
+        usage=reply.get("usage") or {},
+        text=text[:12000],
+    )
     source = extract_python(text)
     plant = brief["plant"]
     if source:
