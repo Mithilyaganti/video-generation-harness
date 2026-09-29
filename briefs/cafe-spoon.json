@@ -1,0 +1,80 @@
+{
+  "scene_id": "cafe-spoon",
+  "tell_frames": false,
+  "setting": "a cafe table by a window",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#2a211c",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A cup is visible for about the first second, then it is gone. Later, a spoon appears and stays for about two seconds, then it is gone. The spoon does not appear before the cup. A napkin stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "napkin",
+      "kind": "napkin",
+      "color": "#e7e2d6",
+      "shape": "box",
+      "x": 18,
+      "y": 114,
+      "w": 64,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "cup",
+      "kind": "cup",
+      "color": "#c4563a",
+      "shape": "box",
+      "x": 18,
+      "y": 14,
+      "w": 56,
+      "h": 56,
+      "from_frame": 1,
+      "to_frame": 10
+    },
+    {
+      "id": "spoon",
+      "kind": "spoon",
+      "color": "#d8dee8",
+      "shape": "box",
+      "x": 190,
+      "y": 20,
+      "w": 72,
+      "h": 64,
+      "from_frame": 14,
+      "to_frame": 37
+    }
+  ],
+  "plant": {
+    "id": "spoon",
+    "kind": "spoon",
+    "color": "#d8dee8",
+    "shape": "box",
+    "x": 190,
+    "y": 20,
+    "w": 72,
+    "h": 64,
+    "from_frame": 14,
+    "to_frame": 37,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the spoon appear before the cup?",
+    "asked_id": "spoon",
+    "asked_kind": "spoon",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The cup is already on the table when the spoon shows up.",
+    "nearby_id": "napkin",
+    "earlier": "spoon",
+    "later": "cup",
+    "true_key": "The spoon appears before the cup."
+  }
+}

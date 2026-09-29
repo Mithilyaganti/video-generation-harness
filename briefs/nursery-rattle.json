@@ -1,0 +1,80 @@
+{
+  "scene_id": "nursery-rattle",
+  "tell_frames": false,
+  "setting": "a nursery corner",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#2a2030",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A mobile is visible for about the first second, then it is gone. Later, a rattle appears and stays for about two seconds, then it is gone. The rattle does not appear before the mobile. A crib stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "crib",
+      "kind": "crib",
+      "color": "#e6d3b4",
+      "shape": "box",
+      "x": 14,
+      "y": 108,
+      "w": 64,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "mobile",
+      "kind": "mobile",
+      "color": "#7eb6d9",
+      "shape": "box",
+      "x": 14,
+      "y": 16,
+      "w": 56,
+      "h": 56,
+      "from_frame": 1,
+      "to_frame": 10
+    },
+    {
+      "id": "rattle",
+      "kind": "rattle",
+      "color": "#e23b4a",
+      "shape": "box",
+      "x": 196,
+      "y": 18,
+      "w": 72,
+      "h": 64,
+      "from_frame": 15,
+      "to_frame": 38
+    }
+  ],
+  "plant": {
+    "id": "rattle",
+    "kind": "rattle",
+    "color": "#e23b4a",
+    "shape": "box",
+    "x": 196,
+    "y": 18,
+    "w": 72,
+    "h": 64,
+    "from_frame": 15,
+    "to_frame": 38,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the rattle appear before the mobile?",
+    "asked_id": "rattle",
+    "asked_kind": "rattle",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The mobile is already hanging when the rattle shows up.",
+    "nearby_id": "crib",
+    "earlier": "rattle",
+    "later": "mobile",
+    "true_key": "The rattle appears before the mobile."
+  }
+}

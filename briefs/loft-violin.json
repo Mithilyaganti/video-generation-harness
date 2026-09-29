@@ -1,0 +1,80 @@
+{
+  "scene_id": "loft-violin",
+  "tell_frames": false,
+  "setting": "a loft corner",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#241820",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A metronome is visible for about the first second, then it is gone. Later, a violin appears and stays for about two seconds, then it is gone. The violin does not appear before the metronome. A stool stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "stool",
+      "kind": "stool",
+      "color": "#c4a46a",
+      "shape": "box",
+      "x": 14,
+      "y": 110,
+      "w": 64,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "metronome",
+      "kind": "metronome",
+      "color": "#e8d48a",
+      "shape": "box",
+      "x": 14,
+      "y": 18,
+      "w": 56,
+      "h": 56,
+      "from_frame": 0,
+      "to_frame": 9
+    },
+    {
+      "id": "violin",
+      "kind": "violin",
+      "color": "#8c2f2f",
+      "shape": "box",
+      "x": 184,
+      "y": 18,
+      "w": 72,
+      "h": 64,
+      "from_frame": 16,
+      "to_frame": 39
+    }
+  ],
+  "plant": {
+    "id": "violin",
+    "kind": "violin",
+    "color": "#8c2f2f",
+    "shape": "box",
+    "x": 184,
+    "y": 18,
+    "w": 72,
+    "h": 64,
+    "from_frame": 16,
+    "to_frame": 39,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the violin appear before the metronome?",
+    "asked_id": "violin",
+    "asked_kind": "violin",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The metronome is already ticking when the violin shows up.",
+    "nearby_id": "stool",
+    "earlier": "violin",
+    "later": "metronome",
+    "true_key": "The violin appears before the metronome."
+  }
+}
