@@ -1,0 +1,52 @@
+{
+  "scene_id": "order-band",
+  "tell_frames": false,
+  "task": "order",
+  "pixels_are_enough": true,
+  "setting": "a small stage with a grey stool",
+  "width": 640,
+  "height": 360,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#d7d2c8",
+  "camera": {"kind": "static", "pixels": 0},
+  "rule": "A red drum, a blue bell, and a gold horn each appear once, for a short moment, and never at the same time. About 0.8 seconds passes after one leaves before the next appears. The horn is first. The drum is last. The gold horn is color #e2c14a, about 70 by 40, near x=200, y=170. A grey stool stays visible the whole time.",
+  "objects": [
+    {"id": "stool", "kind": "stool", "color": "#5c6b73", "shape": "box", "x": 480, "y": 160, "w": 70, "h": 80}
+  ],
+  "events": [
+    {"id": "horn", "kind": "horn", "color": "#e2c14a", "shape": "box", "x": 200, "y": 170, "w": 70, "h": 40, "silent": true},
+    {"id": "bell", "kind": "bell", "color": "#2a62c9", "shape": "sphere", "x": 300, "y": 150, "w": 48, "h": 48},
+    {"id": "drum", "kind": "drum", "color": "#c0392b", "shape": "box", "x": 120, "y": 160, "w": 64, "h": 48}
+  ],
+  "order": {
+    "steps": ["horn", "bell", "drum"],
+    "min_gap": 8,
+    "max_gap": 14,
+    "min_span": 3,
+    "max_span": 10,
+    "first_start_max": 8
+  },
+  "plant": {
+    "id": "horn",
+    "kind": "horn",
+    "color": "#e2c14a",
+    "shape": "box",
+    "x": 200,
+    "y": 170,
+    "w": 70,
+    "h": 40,
+    "from_frame": 0,
+    "to_frame": 0,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Did the drum appear before the horn?",
+    "asked_id": "drum",
+    "asked_kind": "drum",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "nearby_id": "stool",
+    "claim": {"type": "order", "earlier": "drum", "later": "horn"}
+  }
+}

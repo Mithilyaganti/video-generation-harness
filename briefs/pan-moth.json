@@ -1,0 +1,51 @@
+{
+  "scene_id": "pan-moth",
+  "tell_frames": false,
+  "task": "pan_cross",
+  "pixels_are_enough": true,
+  "setting": "a dim room with one post",
+  "width": 640,
+  "height": 360,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#243038",
+  "camera": {"kind": "pan_right", "pixels": 80},
+  "rule": "An orange post is fixed in the room, starting near x=360, y=80, about 24 wide and 200 tall. The camera pans right, so the post slides left across the picture. A pale moth begins to the left of the post and, while the camera is moving, flies across it and finishes to the right of the post. At the end the moth is still to the right of the post itself, not merely on the right side of the frame. The moth is color #f4f7f2, about 22 by 16.",
+  "objects": [
+    {"id": "post", "kind": "post", "color": "#e07a2f", "shape": "box", "x": 360, "y": 80, "w": 24, "h": 200}
+  ],
+  "events": [
+    {"id": "moth", "kind": "moth", "color": "#f4f7f2", "shape": "box", "x": 280, "y": 150, "w": 22, "h": 16, "silent": true}
+  ],
+  "pan_cross": {
+    "mover": "moth",
+    "anchor": "post",
+    "direction": "pan_right",
+    "min_shift": 40,
+    "side_min": 4,
+    "left_id": "moth_left",
+    "right_id": "moth_right"
+  },
+  "plant": {
+    "id": "moth",
+    "kind": "moth",
+    "color": "#f4f7f2",
+    "shape": "box",
+    "x": 280,
+    "y": 150,
+    "w": 22,
+    "h": 16,
+    "from_frame": 0,
+    "to_frame": 0,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Did the moth reach the right of the post before it was on the left?",
+    "asked_id": "moth",
+    "asked_kind": "moth",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "nearby_id": "post",
+    "claim": {"type": "order", "earlier": "moth_right", "later": "moth_left"}
+  }
+}

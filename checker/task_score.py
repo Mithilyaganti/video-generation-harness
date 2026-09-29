@@ -307,7 +307,8 @@ def score_delay(run_dir: Path, brief: dict) -> dict:
             notes.append(f"the plant lasts {_span(leaf)} frames")
         if not (spec["min_gap"] <= gap <= spec["max_gap"]):
             plant_ok = False
-            notes.append(f"the wait after the first object is {gap} frames, not about 0.8 seconds")
+            wanted = spec.get("gap_words", "about 0.8 seconds")
+            notes.append(f"the wait after the first object is {gap} frames, not {wanted}")
         if trig[0] > spec["trigger_start_max"]:
             plant_ok = False
             notes.append("the first object does not appear near the start")
@@ -315,11 +316,12 @@ def score_delay(run_dir: Path, brief: dict) -> dict:
             plant_ok = False
             notes.append("the plant does not come after the first object")
         log, saved = _load_run(run_dir)
-        for name, run in ((trigger, trig), (plant, leaf)):
-            logged = _logged(log, name)
-            if _overlap(_indices(run), logged) < 0.8:
-                plant_ok = False
-                notes.append(f"the log does not match the frames for {name}")
+        if not brief.get("pixels_are_enough"):
+            for name, run in ((trigger, trig), (plant, leaf)):
+                logged = _logged(log, name)
+                if _overlap(_indices(run), logged) < 0.8:
+                    plant_ok = False
+                    notes.append(f"the log does not match the frames for {name}")
         notes.append(f"trigger frames {trig[0]}-{trig[1]}, plant frames {leaf[0]}-{leaf[1]}, gap {gap}")
         present = {trigger: _indices(trig), plant: _indices(leaf)}
         return _finish_report(plant_ok, notes, saved, brief, _checker_frames(count, present))
@@ -502,6 +504,213 @@ def _count_label(pixels: int, area: int, first: int, second: int) -> str:
     return "other"
 
 
+def _on_labels(rows: list[dict], names: list[str], ceiling: int) -> list[str]:
+    labels = []
+    for acc in rows:
+        showing = [name for name in names if MIN_PIXELS <= acc[name][0] <= ceiling]
+        if len(showing) > 1:
+            labels.append("mix")
+        elif len(showing) == 1:
+            labels.append(showing[0])
+        else:
+            labels.append("off")
+    return labels
+
+
+def score_order(run_dir: Path, brief: dict) -> dict:
+    notes = []
+    paths = _frame_paths(run_dir)
+    count = int(brief["frame_count"])
+    if len(paths) < count:
+        return _finish_report(False, [f"expected {count} frames, found {len(paths)}"], None, brief, [])
+    spec = brief["order"]
+    steps = list(spec["steps"])
+    colors = _colors(brief)
+    prop = brief["objects"][0]["id"]
+    watches = [(name, colors[name]) for name in steps + [prop]]
+    rows = []
+    ceiling = 0
+    prop_hits = 0
+    for index in range(count):
+        acc, area = _scan(paths[index], watches, None)
+        ceiling = int(area * MAX_FRACTION)
+        rows.append(acc)
+        if acc[prop][0] >= MIN_PIXELS:
+            prop_hits += 1
+    labels = _on_labels(rows, steps, ceiling)
+    plant_ok = prop_hits >= int(count * 0.9)
+    if not plant_ok:
+        notes.append("the lasting object is missing from too many frames")
+    if any(label == "mix" for label in labels):
+        plant_ok = False
+        notes.append("two events are on screen together")
+    runs = {name: _bursts(labels, name) for name in steps}
+    if any(len(runs[name]) != 1 for name in steps):
+        plant_ok = False
+        notes.append("each event should appear once: " + ", ".join(f"{name} {runs[name]}" for name in steps))
+        _log, saved = _load_run(run_dir)
+        return _finish_report(False, notes, saved, brief, _checker_frames(count, {}))
+    ordered = [(name, runs[name][0]) for name in steps]
+    for name, run in ordered:
+        if not (spec["min_span"] <= _span(run) <= spec["max_span"]):
+            plant_ok = False
+            notes.append(f"{name} lasts {_span(run)} frames")
+    if ordered[0][1][0] > spec["first_start_max"]:
+        plant_ok = False
+        notes.append("the first event is not near the start")
+    for (prev_name, prev), (next_name, nxt) in zip(ordered, ordered[1:]):
+        gap = nxt[0] - prev[1] - 1
+        if nxt[0] <= prev[1]:
+            plant_ok = False
+            notes.append(f"{next_name} does not come after {prev_name}")
+        elif not (spec["min_gap"] <= gap <= spec["max_gap"]):
+            plant_ok = False
+            notes.append(f"the wait between {prev_name} and {next_name} is {gap} frames")
+    present = {name: _indices(run) for name, run in ordered}
+    log, saved = _load_run(run_dir)
+    if not brief.get("pixels_are_enough"):
+        for name, run in ordered:
+            if _overlap(_indices(run), _logged(log, name)) < 0.8:
+                plant_ok = False
+                notes.append(f"the log does not match the frames for {name}")
+    notes.append(", ".join(f"{name} {run[0]}-{run[1]}" for name, run in ordered))
+    return _finish_report(plant_ok, notes, saved, brief, _checker_frames(count, present))
+
+
+def score_reappear(run_dir: Path, brief: dict) -> dict:
+    notes = []
+    paths = _frame_paths(run_dir)
+    count = int(brief["frame_count"])
+    if len(paths) < count:
+        return _finish_report(False, [f"expected {count} frames, found {len(paths)}"], None, brief, [])
+    spec = brief["reappear"]
+    colors = _colors(brief)
+    mover = spec["mover"]
+    board = spec["board"]
+    board_obj = next(obj for obj in brief["objects"] if obj["id"] == board)
+    span = (int(board_obj["x"]), int(board_obj["x"]) + int(board_obj["w"]))
+    area = int(spec["unit_w"]) * int(spec["unit_h"])
+    watches = [(mover, colors[mover]), (board, colors[board])]
+    labels = []
+    board_hits = 0
+    for index in range(count):
+        acc, _area = _scan(paths[index], watches, span)
+        if acc[board][0] >= MIN_PIXELS:
+            board_hits += 1
+        labels.append(_reappear_label(acc[mover], span, area, int(spec["enter"]), int(spec["leave"])))
+    plant_ok = board_hits >= int(count * 0.9)
+    if not plant_ok:
+        notes.append("the board is missing from too many frames")
+    if any(label == "on_board" for label in labels):
+        plant_ok = False
+        notes.append("the mover is visible on the board")
+    if any(label == "other" for label in labels):
+        plant_ok = False
+        notes.append("a frame has the wrong count or the wrong side")
+    enter_runs = _bursts(labels, "enter")
+    leave_runs = _bursts(labels, "leave")
+    if len(enter_runs) != 1 or len(leave_runs) != 1:
+        plant_ok = False
+        notes.append(f"expected one entrance and one exit, saw {enter_runs} {leave_runs}")
+        _log, saved = _load_run(run_dir)
+        return _finish_report(False, notes, saved, brief, _checker_frames(count, {}))
+    enter, leave = enter_runs[0], leave_runs[0]
+    hidden = set(range(enter[1] + 1, leave[0]))
+    if leave[0] <= enter[1] or len(hidden) < spec["min_hidden"]:
+        plant_ok = False
+        notes.append(f"the hide between the two counts lasts {len(hidden)} frames")
+    if any(labels[index] != "off" for index in hidden):
+        plant_ok = False
+        notes.append("the crossing is not a clean gap")
+    if _span(enter) < spec["side_min"] or _span(leave) < spec["side_min"]:
+        plant_ok = False
+        notes.append("one side of the crossing is too short")
+    if enter[0] > spec["first_start_max"]:
+        plant_ok = False
+        notes.append("the first ball does not start near the beginning")
+    present = {spec["enter_id"]: _indices(enter), spec["leave_id"]: _indices(leave)}
+    _log, saved = _load_run(run_dir)
+    if plant_ok:
+        notes.append(f"enter {enter[0]}-{enter[1]}, hidden {len(hidden)}, leave {leave[0]}-{leave[1]}")
+    return _finish_report(plant_ok, notes, saved, brief, _checker_frames(count, present))
+
+
+def _reappear_label(slot: list[int], span: tuple[int, int], area: int, enter: int, leave: int) -> str:
+    count, sum_x, on_board = slot
+    if on_board > OUTSIDE_MAX and count >= MIN_PIXELS:
+        return "on_board"
+    if count <= OUTSIDE_MAX:
+        return "off"
+    center = sum_x / count
+    ratio = count / float(area)
+    if abs(ratio - enter) <= 0.45 and center < span[0]:
+        return "enter"
+    if abs(ratio - leave) <= 0.55 and center >= span[1]:
+        return "leave"
+    return "other"
+
+
+def score_pan_cross(run_dir: Path, brief: dict) -> dict:
+    notes = []
+    paths = _frame_paths(run_dir)
+    count = int(brief["frame_count"])
+    if len(paths) < count:
+        return _finish_report(False, [f"expected {count} frames, found {len(paths)}"], None, brief, [])
+    spec = brief["pan_cross"]
+    colors = _colors(brief)
+    mover = spec["mover"]
+    anchor = spec["anchor"]
+    watches = [(mover, colors[mover]), (anchor, colors[anchor])]
+    anchor_x = []
+    mover_x = []
+    for index in range(count):
+        acc, _area = _scan(paths[index], watches, None)
+        anchor_x.append(acc[anchor][1] / acc[anchor][0] if acc[anchor][0] >= MIN_PIXELS else None)
+        mover_x.append(acc[mover][1] / acc[mover][0] if acc[mover][0] >= MIN_PIXELS else None)
+    seen = [(index, x) for index, x in enumerate(anchor_x) if x is not None]
+    plant_ok = len(seen) >= int(count * 0.9)
+    if not plant_ok:
+        notes.append("the post is missing from too many frames")
+    if seen:
+        delta = seen[-1][1] - seen[0][1]
+        want = int(spec["min_shift"])
+        if spec["direction"] == "pan_right" and delta > -want:
+            plant_ok = False
+            notes.append(f"the post shifted {delta:.0f} pixels, so the camera pan is missing")
+        if spec["direction"] == "pan_left" and delta < want:
+            plant_ok = False
+            notes.append(f"the post shifted {delta:.0f} pixels, so the camera pan is missing")
+    labels = []
+    for index in range(count):
+        if mover_x[index] is None or anchor_x[index] is None:
+            labels.append("off")
+        elif mover_x[index] < anchor_x[index] - 8:
+            labels.append("left")
+        elif mover_x[index] > anchor_x[index] + 8:
+            labels.append("right")
+        else:
+            labels.append("cross")
+    left_runs = _bursts(labels, "left")
+    right_runs = _bursts(labels, "right")
+    if len(left_runs) != 1 or len(right_runs) != 1:
+        plant_ok = False
+        notes.append(f"expected the mover on each side once, saw left {left_runs} right {right_runs}")
+        _log, saved = _load_run(run_dir)
+        return _finish_report(False, notes, saved, brief, _checker_frames(count, {}))
+    left, right = left_runs[0], right_runs[0]
+    if right[0] <= left[1]:
+        plant_ok = False
+        notes.append("the mover is on the right before it finishes the left side")
+    if _span(left) < spec["side_min"] or _span(right) < spec["side_min"]:
+        plant_ok = False
+        notes.append("one side of the post is too brief")
+    present = {spec["left_id"]: _indices(left), spec["right_id"]: _indices(right)}
+    _log, saved = _load_run(run_dir)
+    if plant_ok:
+        notes.append(f"left {left[0]}-{left[1]}, right {right[0]}-{right[1]}")
+    return _finish_report(plant_ok, notes, saved, brief, _checker_frames(count, present))
+
+
 def score_task(run_dir: Path, brief: dict) -> dict:
     kind = brief.get("task")
     if kind == "delay":
@@ -510,6 +719,12 @@ def score_task(run_dir: Path, brief: dict) -> dict:
         return score_cover(run_dir, brief)
     if kind == "count":
         return score_count(run_dir, brief)
+    if kind == "order":
+        return score_order(run_dir, brief)
+    if kind == "reappear":
+        return score_reappear(run_dir, brief)
+    if kind == "pan_cross":
+        return score_pan_cross(run_dir, brief)
     return _finish_report(False, [f"unknown task {kind}"], None, brief, [])
 
 
@@ -598,6 +813,156 @@ def _paint_counts(out_dir: Path, brief: dict, correct: bool) -> None:
     (out_dir / "trap.json").write_text(json.dumps(brief["trap"]))
 
 
+def _paint_labeled(out_dir: Path, brief: dict, frames_of) -> None:
+    from PIL import ImageDraw
+
+    out_dir.mkdir(parents=True)
+    frames = out_dir / "frames"
+    frames.mkdir()
+    log_frames = []
+    for index in range(int(brief["frame_count"])):
+        image = Image.new("RGB", (brief["width"], brief["height"]), brief["background"])
+        draw = ImageDraw.Draw(image)
+        objects = []
+        for box in frames_of(index):
+            _solid(draw, (box["x"], box["y"], box["w"], box["h"]), box["color"])
+            objects.append(box)
+        image.save(frames / f"f_{index:03d}.png")
+        log_frames.append({"index": index, "objects": objects})
+    (out_dir / "log.json").write_text(json.dumps({"frames": log_frames}))
+    (out_dir / "trap.json").write_text(json.dumps(brief["trap"]))
+
+
+def _shrink(brief: dict, count: int) -> dict:
+    copy = json.loads(json.dumps(brief))
+    copy["frame_count"] = count
+    return copy
+
+
+def _check_harder_prompts() -> None:
+    from harness.briefs import load_brief, prose
+
+    for scene_id in ("order-band", "reappear-balls", "pan-moth", "buried-glint"):
+        text = prose(load_brief(scene_id)).lower()
+        if "plant" in text or "from_frame" in text or "through" in text:
+            raise SystemExit(f"{scene_id} prompt names a plant or gives frame numbers")
+
+
+def _check_harder_pictures(root: Path) -> None:
+    from harness.briefs import load_brief
+
+    order = _shrink(load_brief("order-band"), 24)
+    order["order"].update({"min_gap": 3, "max_gap": 6, "min_span": 2, "max_span": 5, "first_start_max": 2})
+    stool = {"id": "stool", "kind": "stool", "color": "#5c6b73", "x": 480, "y": 160, "w": 70, "h": 80}
+    horn = {"id": "horn", "kind": "horn", "color": "#e2c14a", "x": 200, "y": 170, "w": 70, "h": 40}
+    bell = {"id": "bell", "kind": "bell", "color": "#2a62c9", "x": 300, "y": 150, "w": 48, "h": 48}
+    drum = {"id": "drum", "kind": "drum", "color": "#c0392b", "x": 120, "y": 160, "w": 64, "h": 48}
+
+    def boxes_for(spans):
+        def draw(index):
+            boxes = [dict(stool)]
+            for box, start, end in spans:
+                if start <= index <= end:
+                    boxes.append(dict(box))
+            return boxes
+        return draw
+
+    _paint_labeled(root / "order-good", order, boxes_for([(horn, 0, 2), (bell, 7, 9), (drum, 14, 16)]))
+    good = score_task(root / "order-good", order)
+    if not good["plant_ok"] or not good["trap_working"]:
+        raise SystemExit(f"a correct three-event order failed: {json.dumps(good, indent=2)}")
+    print("pass three-event order")
+    _paint_labeled(root / "order-bad", order, boxes_for([(drum, 0, 2), (bell, 7, 9), (horn, 14, 16)]))
+    if score_task(root / "order-bad", order)["plant_ok"]:
+        raise SystemExit("mention order still passed the horn-first rule")
+    print("rejected drum-first order")
+
+    balls = _shrink(load_brief("reappear-balls"), 24)
+    balls["reappear"].update({"min_hidden": 3, "side_min": 3, "first_start_max": 2})
+    board = {"id": "board", "kind": "board", "color": "#6b4423", "x": 280, "y": 70, "w": 80, "h": 210}
+
+    def ball_at(x, index_ok):
+        return {"id": "ball", "kind": "ball", "color": "#d42323", "x": x, "y": 160, "w": 28, "h": 28}
+
+    def re_draw(correct):
+        def draw(index):
+            boxes = [dict(board)]
+            if 0 <= index <= 4:
+                boxes.append(ball_at(40, True))
+            if 12 <= index <= 16:
+                xs = (420, 460, 500) if correct else (420,)
+                for x in xs:
+                    boxes.append(ball_at(x, True))
+            return boxes
+        return draw
+
+    _paint_labeled(root / "re-good", balls, re_draw(True))
+    re_good = score_task(root / "re-good", balls)
+    if not re_good["plant_ok"] or not re_good["trap_working"]:
+        raise SystemExit(f"a count change after a hide failed: {json.dumps(re_good, indent=2)}")
+    print("pass hide then three balls")
+    _paint_labeled(root / "re-bad", balls, re_draw(False))
+    if score_task(root / "re-bad", balls)["plant_ok"]:
+        raise SystemExit("one ball coming back out still passed")
+    print("rejected a hide that does not change the count")
+
+    pan = _shrink(load_brief("pan-moth"), 24)
+    pan["pan_cross"]["min_shift"] = 30
+    pan["pan_cross"]["side_min"] = 3
+
+    def pan_draw(cross):
+        def draw(index):
+            post_x = 360 - index * 2
+            boxes = [{"id": "post", "kind": "post", "color": "#e07a2f", "x": post_x, "y": 80, "w": 24, "h": 200}]
+            if index <= 8:
+                moth_x = post_x - 50
+            elif cross and index >= 12:
+                moth_x = post_x + 40
+            elif not cross:
+                moth_x = post_x - 50
+            else:
+                return boxes
+            boxes.append({"id": "moth", "kind": "moth", "color": "#f4f7f2", "x": moth_x, "y": 150, "w": 22, "h": 16})
+            return boxes
+        return draw
+
+    _paint_labeled(root / "pan-good", pan, pan_draw(True))
+    pan_good = score_task(root / "pan-good", pan)
+    if not pan_good["plant_ok"] or not pan_good["trap_working"]:
+        raise SystemExit(f"a crossing during a pan failed: {json.dumps(pan_good, indent=2)}")
+    print("pass left-to-right after a camera pan")
+    _paint_labeled(root / "pan-bad", pan, pan_draw(False))
+    if score_task(root / "pan-bad", pan)["plant_ok"]:
+        raise SystemExit("a moth that stays left of the post still passed")
+    print("rejected a moth that never crosses")
+
+    glint = _shrink(load_brief("buried-glint"), 24)
+    glint["delay"].update({"min_gap": 4, "max_gap": 8, "min_span": 2, "max_span": 4, "trigger_max_span": 4, "trigger_start_max": 2})
+    tray = {"id": "tray", "kind": "tray", "color": "#6b4423", "x": 470, "y": 180, "w": 110, "h": 36}
+    kettle = {"id": "kettle", "kind": "kettle", "color": "#2a62c9", "x": 80, "y": 140, "w": 70, "h": 80}
+    spark = {"id": "glint", "kind": "glint", "color": "#e38b2f", "x": 300, "y": 160, "w": 16, "h": 16}
+
+    def glint_draw(show):
+        def draw(index):
+            boxes = [dict(tray)]
+            if 0 <= index <= 2:
+                boxes.append(dict(kettle))
+            if show and 8 <= index <= 10:
+                boxes.append(dict(spark))
+            return boxes
+        return draw
+
+    _paint_labeled(root / "glint-good", glint, glint_draw(True))
+    glint_good = score_task(root / "glint-good", glint)
+    if not glint_good["plant_ok"] or not glint_good["trap_working"]:
+        raise SystemExit(f"a buried glint failed: {json.dumps(glint_good, indent=2)}")
+    print("pass a short glint that is not called a plant")
+    _paint_labeled(root / "glint-bad", glint, glint_draw(False))
+    if score_task(root / "glint-bad", glint)["plant_ok"]:
+        raise SystemExit("a clip with no glint still passed")
+    print("rejected a missing glint")
+
+
 def self_check() -> None:
     import tempfile
 
@@ -684,6 +1049,8 @@ def self_check() -> None:
             raise SystemExit("a clip that keeps four blocks still passed")
         print("rejected a count that never changes")
 
+        _check_harder_prompts()
+        _check_harder_pictures(root)
         absent_frames = [
             {"index": i, "objects": [{"id": "mug", "color": "#e07a2f", "x": 1, "y": 1, "w": 8, "h": 8}]}
             for i in range(48)

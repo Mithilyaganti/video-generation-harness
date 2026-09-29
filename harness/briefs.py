@@ -37,6 +37,8 @@ def _rule_prose(brief: dict) -> str:
         "Draw these. Do not print words on the picture:",
     ]
     for obj in list(brief["objects"]) + list(brief.get("events") or []):
+        if obj.get("silent"):
+            continue
         lines.append(
             f"- {obj['id']}, a {obj['kind']}, color {obj['color']}, shape {obj['shape']}, "
             f"around x={obj['x']}, y={obj['y']}, size {obj['w']} by {obj['h']}."
