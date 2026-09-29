@@ -108,12 +108,19 @@ def _indices(run: tuple[int, int]) -> set[int]:
     return set(range(run[0], run[1] + 1))
 
 
+def _same_id(got, wanted: str) -> bool:
+    text = str(got or "")
+    if text == wanted:
+        return True
+    return text.startswith(wanted + "_") or text.startswith(wanted + "-")
+
+
 def _logged(log: dict, obj_id: str) -> set[int]:
     found = set()
     for frame in log.get("frames") or []:
         index = int(frame.get("index", -1))
         for obj in frame.get("objects") or []:
-            if obj.get("id") == obj_id:
+            if _same_id(obj.get("id"), obj_id):
                 found.add(index)
                 break
     return found
@@ -291,7 +298,8 @@ def score_delay(run_dir: Path, brief: dict) -> dict:
     else:
         trig, leaf = trigger_runs[0], plant_runs[0]
         gap = leaf[0] - trig[1] - 1
-        if not (spec["min_span"] <= _span(trig) <= spec["max_span"]):
+        trigger_max = int(spec.get("trigger_max_span", spec["max_span"]))
+        if not (spec["min_span"] <= _span(trig) <= trigger_max):
             plant_ok = False
             notes.append(f"the earlier object lasts {_span(trig)} frames")
         if not (spec["min_span"] <= _span(leaf) <= spec["max_span"]):
@@ -597,6 +605,9 @@ def self_check() -> None:
     from harness.compile_scene import render_record
 
     delay = load_brief("delay-cart")
+    needle = load_brief("needle-thread")
+    if "from_frame" in prose(needle) or "through" in prose(needle) or "96" not in prose(needle):
+        raise SystemExit("the needle prompt leaked frames or dropped the longer clip")
     text = prose(delay)
     if "from_frame" in text or "through" in text or "min_gap" in text:
         raise SystemExit("the delay prompt still gives the frame window away")
@@ -629,6 +640,16 @@ def self_check() -> None:
         if not good_score["plant_ok"] or not good_score["trap_working"]:
             raise SystemExit(f"a correct delay failed: {json.dumps(good_score, indent=2)}")
         print("pass delay timing and shortcut checks")
+        renamed = json.loads((good / "log.json").read_text())
+        for frame in renamed["frames"]:
+            for obj in frame["objects"]:
+                if obj["id"] in {"cart", "marigold", "crate"}:
+                    obj["id"] = obj["id"] + "_1"
+        (good / "log.json").write_text(json.dumps(renamed))
+        suffix_score = score_task(good, delay)
+        if not suffix_score["plant_ok"] or not suffix_score["trap_working"]:
+            raise SystemExit(f"a suffixed id failed: {json.dumps(suffix_score, indent=2)}")
+        print("pass delay when the log adds a suffix to each id")
 
         early = root / "early"
         render_record(delay_record(8), early, write_video=False)

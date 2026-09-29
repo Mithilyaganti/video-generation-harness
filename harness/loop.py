@@ -162,7 +162,8 @@ def _log_has_plant(out_dir: Path, plant_id: str) -> bool:
         return False
     for frame in log.get("frames") or []:
         for obj in frame.get("objects") or []:
-            if obj.get("id") == plant_id:
+            got = str(obj.get("id") or "")
+            if got == plant_id or got.startswith(plant_id + "_") or got.startswith(plant_id + "-"):
                 return True
     return False
 
