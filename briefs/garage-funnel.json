@@ -1,0 +1,80 @@
+{
+  "scene_id": "garage-funnel",
+  "tell_frames": false,
+  "setting": "a garage bench at night",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#1c2128",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A bulb is visible for about the first second, then it is gone. Later, a funnel appears and stays for about two seconds, then it is gone. The funnel does not appear before the bulb. A jack stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "jack",
+      "kind": "jack",
+      "color": "#d35a48",
+      "shape": "box",
+      "x": 24,
+      "y": 114,
+      "w": 64,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "bulb",
+      "kind": "bulb",
+      "color": "#ffe28a",
+      "shape": "box",
+      "x": 24,
+      "y": 14,
+      "w": 56,
+      "h": 56,
+      "from_frame": 4,
+      "to_frame": 14
+    },
+    {
+      "id": "funnel",
+      "kind": "funnel",
+      "color": "#6aa2ff",
+      "shape": "box",
+      "x": 180,
+      "y": 22,
+      "w": 72,
+      "h": 64,
+      "from_frame": 16,
+      "to_frame": 39
+    }
+  ],
+  "plant": {
+    "id": "funnel",
+    "kind": "funnel",
+    "color": "#6aa2ff",
+    "shape": "box",
+    "x": 180,
+    "y": 22,
+    "w": 72,
+    "h": 64,
+    "from_frame": 16,
+    "to_frame": 39,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the funnel appear before the bulb?",
+    "asked_id": "funnel",
+    "asked_kind": "funnel",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The bulb is already glowing when the funnel shows up.",
+    "nearby_id": "jack",
+    "earlier": "funnel",
+    "later": "bulb",
+    "true_key": "The funnel appears before the bulb."
+  }
+}

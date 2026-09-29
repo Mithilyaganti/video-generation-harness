@@ -118,6 +118,9 @@ def main() -> None:
     from checker.task_score import self_check
 
     self_check()
+    from harness.strict_item import self_check as strict_self_check
+
+    strict_self_check()
     print("selftest ok")
 
 

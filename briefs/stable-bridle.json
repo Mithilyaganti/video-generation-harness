@@ -1,0 +1,80 @@
+{
+  "scene_id": "stable-bridle",
+  "tell_frames": false,
+  "setting": "a dim stable aisle",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#241c16",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A lantern is visible for about the first second, then it is gone. Later, a bridle appears and stays for about two seconds, then it is gone. The bridle does not appear before the lantern. A trough stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "trough",
+      "kind": "trough",
+      "color": "#c49a6c",
+      "shape": "box",
+      "x": 16,
+      "y": 110,
+      "w": 64,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "lantern",
+      "kind": "lantern",
+      "color": "#f0c84a",
+      "shape": "box",
+      "x": 16,
+      "y": 16,
+      "w": 56,
+      "h": 56,
+      "from_frame": 0,
+      "to_frame": 11
+    },
+    {
+      "id": "bridle",
+      "kind": "bridle",
+      "color": "#e07030",
+      "shape": "box",
+      "x": 200,
+      "y": 24,
+      "w": 72,
+      "h": 64,
+      "from_frame": 12,
+      "to_frame": 35
+    }
+  ],
+  "plant": {
+    "id": "bridle",
+    "kind": "bridle",
+    "color": "#e07030",
+    "shape": "box",
+    "x": 200,
+    "y": 24,
+    "w": 72,
+    "h": 64,
+    "from_frame": 12,
+    "to_frame": 35,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the bridle appear before the lantern?",
+    "asked_id": "bridle",
+    "asked_kind": "bridle",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The lantern is already lit when the bridle shows up.",
+    "nearby_id": "trough",
+    "earlier": "bridle",
+    "later": "lantern",
+    "true_key": "The bridle appears before the lantern."
+  }
+}
