@@ -9,6 +9,7 @@ from pathlib import Path
 from harness.briefs import load_brief
 from harness.loop import run_ideas, run_plain
 from harness.selftest import main as selftest
+from harness.strict_item import stage_item
 
 
 def _history(path: Path) -> list[dict]:
@@ -28,7 +29,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--selftest", action="store_true")
     parser.add_argument("--scene", default="desk-mug")
-    parser.add_argument("--mode", choices=["plain", "ideas"], default="plain")
+    parser.add_argument("--mode", choices=["plain", "ideas", "strict"], default="plain")
     parser.add_argument("--model", default="space-bunny-free")
     parser.add_argument("--renderer", choices=["code", "compile"], default="code")
     parser.add_argument("--media", type=Path, required=False)
@@ -47,6 +48,8 @@ def main() -> None:
     previous = _history(args.history)
     if args.mode == "plain":
         result = run_plain(brief, args.model, out, session, previous, allow_final=args.allow_final)
+    elif args.mode == "strict":
+        result = stage_item(brief, out)
     else:
         result = run_ideas(
             brief,
@@ -60,20 +63,23 @@ def main() -> None:
     args.history.parent.mkdir(parents=True, exist_ok=True)
     with args.history.open("a", encoding="utf-8") as handle:
         handle.write(json.dumps(result) + "\n")
-    print(
-        json.dumps(
-            {
-                "scene": result["scene_id"],
-                "pass": result["pass"],
-                "plant": result["hard"]["plant_in_frames"],
-                "trap_false": result["hard"]["question_is_false"],
-                "trap_working": result.get("trap_working"),
-                "shortcuts": result.get("shortcuts"),
-                "notes": result.get("notes"),
-                "out": str(out),
-            }
+    if args.mode == "strict":
+        print(json.dumps({**result, "out": str(out)}))
+    else:
+        print(
+            json.dumps(
+                {
+                    "scene": result["scene_id"],
+                    "pass": result["pass"],
+                    "plant": result["hard"]["plant_in_frames"],
+                    "trap_false": result["hard"]["question_is_false"],
+                    "trap_working": result.get("trap_working"),
+                    "shortcuts": result.get("shortcuts"),
+                    "notes": result.get("notes"),
+                    "out": str(out),
+                }
+            )
         )
-    )
 
 
 if __name__ == "__main__":

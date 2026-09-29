@@ -1,0 +1,80 @@
+{
+  "scene_id": "garden-trowel",
+  "tell_frames": false,
+  "setting": "a potting bench in the shade",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#1e2a22",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A nozzle is visible for about the first second, then it is gone. Later, a trowel appears and stays for about two seconds, then it is gone. The trowel does not appear before the nozzle. A pot stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "pot",
+      "kind": "pot",
+      "color": "#d48455",
+      "shape": "box",
+      "x": 14,
+      "y": 116,
+      "w": 64,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "nozzle",
+      "kind": "nozzle",
+      "color": "#e4e8ee",
+      "shape": "box",
+      "x": 14,
+      "y": 12,
+      "w": 56,
+      "h": 56,
+      "from_frame": 0,
+      "to_frame": 15
+    },
+    {
+      "id": "trowel",
+      "kind": "trowel",
+      "color": "#e23b4a",
+      "shape": "box",
+      "x": 204,
+      "y": 18,
+      "w": 72,
+      "h": 64,
+      "from_frame": 20,
+      "to_frame": 43
+    }
+  ],
+  "plant": {
+    "id": "trowel",
+    "kind": "trowel",
+    "color": "#e23b4a",
+    "shape": "box",
+    "x": 204,
+    "y": 18,
+    "w": 72,
+    "h": 64,
+    "from_frame": 20,
+    "to_frame": 43,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the trowel appear before the nozzle?",
+    "asked_id": "trowel",
+    "asked_kind": "trowel",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The nozzle is already visible when the trowel shows up.",
+    "nearby_id": "pot",
+    "earlier": "trowel",
+    "later": "nozzle",
+    "true_key": "The trowel appears before the nozzle."
+  }
+}

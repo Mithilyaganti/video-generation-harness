@@ -1,0 +1,80 @@
+{
+  "scene_id": "studio-chalk",
+  "tell_frames": false,
+  "setting": "a small painting studio",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#2a221c",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A sponge is visible for about the first second, then it is gone. Later, a chalk appears and stays for about two seconds, then it is gone. The chalk does not appear before the sponge. A easel stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "easel",
+      "kind": "easel",
+      "color": "#a86b45",
+      "shape": "box",
+      "x": 18,
+      "y": 108,
+      "w": 64,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "sponge",
+      "kind": "sponge",
+      "color": "#3db8c4",
+      "shape": "box",
+      "x": 18,
+      "y": 20,
+      "w": 56,
+      "h": 56,
+      "from_frame": 0,
+      "to_frame": 8
+    },
+    {
+      "id": "chalk",
+      "kind": "chalk",
+      "color": "#f7f3ea",
+      "shape": "box",
+      "x": 196,
+      "y": 28,
+      "w": 72,
+      "h": 64,
+      "from_frame": 18,
+      "to_frame": 41
+    }
+  ],
+  "plant": {
+    "id": "chalk",
+    "kind": "chalk",
+    "color": "#f7f3ea",
+    "shape": "box",
+    "x": 196,
+    "y": 28,
+    "w": 72,
+    "h": 64,
+    "from_frame": 18,
+    "to_frame": 41,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the chalk appear before the sponge?",
+    "asked_id": "chalk",
+    "asked_kind": "chalk",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The sponge is already visible when the chalk shows up.",
+    "nearby_id": "easel",
+    "earlier": "chalk",
+    "later": "sponge",
+    "true_key": "The chalk appears before the sponge."
+  }
+}

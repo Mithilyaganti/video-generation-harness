@@ -1,0 +1,80 @@
+{
+  "scene_id": "stage-ribbon",
+  "tell_frames": false,
+  "setting": "a small stage corner",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#241820",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A spotlight is visible for about the first second, then it is gone. Later, a ribbon appears and stays for about two seconds, then it is gone. The ribbon does not appear before the spotlight. A stool stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "stool",
+      "kind": "stool",
+      "color": "#e0c48a",
+      "shape": "box",
+      "x": 12,
+      "y": 112,
+      "w": 64,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "spotlight",
+      "kind": "spotlight",
+      "color": "#f6f1a8",
+      "shape": "box",
+      "x": 12,
+      "y": 18,
+      "w": 56,
+      "h": 56,
+      "from_frame": 0,
+      "to_frame": 9
+    },
+    {
+      "id": "ribbon",
+      "kind": "ribbon",
+      "color": "#ff4d78",
+      "shape": "box",
+      "x": 192,
+      "y": 16,
+      "w": 72,
+      "h": 64,
+      "from_frame": 13,
+      "to_frame": 36
+    }
+  ],
+  "plant": {
+    "id": "ribbon",
+    "kind": "ribbon",
+    "color": "#ff4d78",
+    "shape": "box",
+    "x": 192,
+    "y": 16,
+    "w": 72,
+    "h": 64,
+    "from_frame": 13,
+    "to_frame": 36,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the ribbon appear before the spotlight?",
+    "asked_id": "ribbon",
+    "asked_kind": "ribbon",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The spotlight is already on when the ribbon shows up.",
+    "nearby_id": "stool",
+    "earlier": "ribbon",
+    "later": "spotlight",
+    "true_key": "The ribbon appears before the spotlight."
+  }
+}

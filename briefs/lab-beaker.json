@@ -1,0 +1,80 @@
+{
+  "scene_id": "lab-beaker",
+  "tell_frames": false,
+  "setting": "a dark lab bench",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#161c28",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A burner is visible for about the first second, then it is gone. Later, a beaker appears and stays for about two seconds, then it is gone. The beaker does not appear before the burner. A stand stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "stand",
+      "kind": "stand",
+      "color": "#b7c0cc",
+      "shape": "box",
+      "x": 22,
+      "y": 108,
+      "w": 64,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "burner",
+      "kind": "burner",
+      "color": "#ff7a3c",
+      "shape": "box",
+      "x": 22,
+      "y": 16,
+      "w": 56,
+      "h": 56,
+      "from_frame": 2,
+      "to_frame": 12
+    },
+    {
+      "id": "beaker",
+      "kind": "beaker",
+      "color": "#7ee0c8",
+      "shape": "box",
+      "x": 176,
+      "y": 26,
+      "w": 72,
+      "h": 64,
+      "from_frame": 15,
+      "to_frame": 38
+    }
+  ],
+  "plant": {
+    "id": "beaker",
+    "kind": "beaker",
+    "color": "#7ee0c8",
+    "shape": "box",
+    "x": 176,
+    "y": 26,
+    "w": 72,
+    "h": 64,
+    "from_frame": 15,
+    "to_frame": 38,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the beaker appear before the burner?",
+    "asked_id": "beaker",
+    "asked_kind": "beaker",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The burner is already lit when the beaker shows up.",
+    "nearby_id": "stand",
+    "earlier": "beaker",
+    "later": "burner",
+    "true_key": "The beaker appears before the burner."
+  }
+}

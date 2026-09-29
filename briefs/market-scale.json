@@ -1,0 +1,80 @@
+{
+  "scene_id": "market-scale",
+  "tell_frames": false,
+  "setting": "a market stall before opening",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#262218",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A bell is visible for about the first second, then it is gone. Later, a scale appears and stays for about two seconds, then it is gone. The scale does not appear before the bell. A crate stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "crate",
+      "kind": "crate",
+      "color": "#d2b48a",
+      "shape": "box",
+      "x": 18,
+      "y": 110,
+      "w": 64,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "bell",
+      "kind": "bell",
+      "color": "#f2d15a",
+      "shape": "box",
+      "x": 18,
+      "y": 14,
+      "w": 56,
+      "h": 56,
+      "from_frame": 3,
+      "to_frame": 13
+    },
+    {
+      "id": "scale",
+      "kind": "scale",
+      "color": "#e7ebf0",
+      "shape": "box",
+      "x": 186,
+      "y": 24,
+      "w": 72,
+      "h": 64,
+      "from_frame": 17,
+      "to_frame": 40
+    }
+  ],
+  "plant": {
+    "id": "scale",
+    "kind": "scale",
+    "color": "#e7ebf0",
+    "shape": "box",
+    "x": 186,
+    "y": 24,
+    "w": 72,
+    "h": 64,
+    "from_frame": 17,
+    "to_frame": 40,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the scale appear before the bell?",
+    "asked_id": "scale",
+    "asked_kind": "scale",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The bell is already visible when the scale shows up.",
+    "nearby_id": "crate",
+    "earlier": "scale",
+    "later": "bell",
+    "true_key": "The scale appears before the bell."
+  }
+}
