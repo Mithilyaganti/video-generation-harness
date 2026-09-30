@@ -1,0 +1,80 @@
+{
+  "scene_id": "ridge-flag",
+  "tell_frames": false,
+  "setting": "a ridge cairn",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#1c1810",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A pole is visible for about the first second, then it is gone. Later, a flag appears and stays for about two seconds, then it is gone. The flag does not appear before the pole. A cairn stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "cairn",
+      "kind": "cairn",
+      "color": "#a89880",
+      "shape": "box",
+      "x": 16,
+      "y": 100,
+      "w": 70,
+      "h": 60,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "pole",
+      "kind": "pole",
+      "color": "#c45c26",
+      "shape": "box",
+      "x": 24,
+      "y": 12,
+      "w": 28,
+      "h": 80,
+      "from_frame": 0,
+      "to_frame": 9
+    },
+    {
+      "id": "flag",
+      "kind": "flag",
+      "color": "#f2f0ea",
+      "shape": "box",
+      "x": 180,
+      "y": 20,
+      "w": 96,
+      "h": 52,
+      "from_frame": 18,
+      "to_frame": 41
+    }
+  ],
+  "plant": {
+    "id": "flag",
+    "kind": "flag",
+    "color": "#f2f0ea",
+    "shape": "box",
+    "x": 180,
+    "y": 20,
+    "w": 96,
+    "h": 52,
+    "from_frame": 18,
+    "to_frame": 41,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the flag appear before the pole?",
+    "asked_id": "flag",
+    "asked_kind": "flag",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The pole is already standing when the flag shows up.",
+    "nearby_id": "cairn",
+    "earlier": "flag",
+    "later": "pole",
+    "true_key": "The flag appears before the pole."
+  }
+}

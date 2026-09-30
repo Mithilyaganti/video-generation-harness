@@ -1,0 +1,80 @@
+{
+  "scene_id": "ward-chart",
+  "tell_frames": false,
+  "setting": "a ward wall",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#181820",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A cot is visible for about the first second, then it is gone. Later, a chart appears and stays for about two seconds, then it is gone. The chart does not appear before the cot. A tray stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "tray",
+      "kind": "tray",
+      "color": "#c0c4cc",
+      "shape": "box",
+      "x": 14,
+      "y": 114,
+      "w": 100,
+      "h": 40,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "cot",
+      "kind": "cot",
+      "color": "#6b8f71",
+      "shape": "box",
+      "x": 18,
+      "y": 18,
+      "w": 80,
+      "h": 44,
+      "from_frame": 0,
+      "to_frame": 11
+    },
+    {
+      "id": "chart",
+      "kind": "chart",
+      "color": "#f6f1e7",
+      "shape": "box",
+      "x": 190,
+      "y": 22,
+      "w": 90,
+      "h": 60,
+      "from_frame": 17,
+      "to_frame": 40
+    }
+  ],
+  "plant": {
+    "id": "chart",
+    "kind": "chart",
+    "color": "#f6f1e7",
+    "shape": "box",
+    "x": 190,
+    "y": 22,
+    "w": 90,
+    "h": 60,
+    "from_frame": 17,
+    "to_frame": 40,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the chart appear before the cot?",
+    "asked_id": "chart",
+    "asked_kind": "chart",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The cot is already made when the chart shows up.",
+    "nearby_id": "tray",
+    "earlier": "chart",
+    "later": "cot",
+    "true_key": "The chart appears before the cot."
+  }
+}

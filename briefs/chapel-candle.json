@@ -1,0 +1,80 @@
+{
+  "scene_id": "chapel-candle",
+  "tell_frames": false,
+  "setting": "a chapel pew",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#16141c",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A book is visible for about the first second, then it is gone. Later, a candle appears and stays for about two seconds, then it is gone. The candle does not appear before the book. A pew stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "pew",
+      "kind": "pew",
+      "color": "#8d6e4a",
+      "shape": "box",
+      "x": 14,
+      "y": 108,
+      "w": 100,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "book",
+      "kind": "book",
+      "color": "#d4564e",
+      "shape": "box",
+      "x": 20,
+      "y": 16,
+      "w": 56,
+      "h": 40,
+      "from_frame": 0,
+      "to_frame": 12
+    },
+    {
+      "id": "candle",
+      "kind": "candle",
+      "color": "#fff1c9",
+      "shape": "box",
+      "x": 210,
+      "y": 24,
+      "w": 36,
+      "h": 72,
+      "from_frame": 16,
+      "to_frame": 39
+    }
+  ],
+  "plant": {
+    "id": "candle",
+    "kind": "candle",
+    "color": "#fff1c9",
+    "shape": "box",
+    "x": 210,
+    "y": 24,
+    "w": 36,
+    "h": 72,
+    "from_frame": 16,
+    "to_frame": 39,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the candle appear before the book?",
+    "asked_id": "candle",
+    "asked_kind": "candle",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The book is already open when the candle shows up.",
+    "nearby_id": "pew",
+    "earlier": "candle",
+    "later": "book",
+    "true_key": "The candle appears before the book."
+  }
+}

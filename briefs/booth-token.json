@@ -1,0 +1,80 @@
+{
+  "scene_id": "booth-token",
+  "tell_frames": false,
+  "setting": "a booth ledge",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#1a1420",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A bell is visible for about the first second, then it is gone. Later, a token appears and stays for about two seconds, then it is gone. The token does not appear before the bell. A ledge stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "ledge",
+      "kind": "ledge",
+      "color": "#c9a27a",
+      "shape": "box",
+      "x": 12,
+      "y": 112,
+      "w": 120,
+      "h": 40,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "bell",
+      "kind": "bell",
+      "color": "#f25c54",
+      "shape": "box",
+      "x": 22,
+      "y": 14,
+      "w": 48,
+      "h": 48,
+      "from_frame": 1,
+      "to_frame": 9
+    },
+    {
+      "id": "token",
+      "kind": "token",
+      "color": "#e4e7ee",
+      "shape": "box",
+      "x": 206,
+      "y": 30,
+      "w": 52,
+      "h": 52,
+      "from_frame": 14,
+      "to_frame": 37
+    }
+  ],
+  "plant": {
+    "id": "token",
+    "kind": "token",
+    "color": "#e4e7ee",
+    "shape": "box",
+    "x": 206,
+    "y": 30,
+    "w": 52,
+    "h": 52,
+    "from_frame": 14,
+    "to_frame": 37,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the token appear before the bell?",
+    "asked_id": "token",
+    "asked_kind": "token",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The bell is already hung when the token shows up.",
+    "nearby_id": "ledge",
+    "earlier": "token",
+    "later": "bell",
+    "true_key": "The token appears before the bell."
+  }
+}

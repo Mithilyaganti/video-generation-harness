@@ -1,0 +1,80 @@
+{
+  "scene_id": "pantry-jar",
+  "tell_frames": false,
+  "setting": "a pantry shelf",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#141820",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A tin is visible for about the first second, then it is gone. Later, a jar appears and stays for about two seconds, then it is gone. The jar does not appear before the tin. A shelf stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "shelf",
+      "kind": "shelf",
+      "color": "#b08968",
+      "shape": "box",
+      "x": 12,
+      "y": 118,
+      "w": 120,
+      "h": 36,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "tin",
+      "kind": "tin",
+      "color": "#d7dde8",
+      "shape": "box",
+      "x": 20,
+      "y": 16,
+      "w": 52,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 10
+    },
+    {
+      "id": "jar",
+      "kind": "jar",
+      "color": "#7dcea0",
+      "shape": "box",
+      "x": 200,
+      "y": 24,
+      "w": 56,
+      "h": 72,
+      "from_frame": 14,
+      "to_frame": 37
+    }
+  ],
+  "plant": {
+    "id": "jar",
+    "kind": "jar",
+    "color": "#7dcea0",
+    "shape": "box",
+    "x": 200,
+    "y": 24,
+    "w": 56,
+    "h": 72,
+    "from_frame": 14,
+    "to_frame": 37,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the jar appear before the tin?",
+    "asked_id": "jar",
+    "asked_kind": "jar",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The tin is already set down when the jar shows up.",
+    "nearby_id": "shelf",
+    "earlier": "jar",
+    "later": "tin",
+    "true_key": "The jar appears before the tin."
+  }
+}
