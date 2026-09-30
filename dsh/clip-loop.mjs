@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -159,13 +159,6 @@ function publishAttempt(src, dest) {
     if (!existsSync(from)) continue;
     copyFileSync(from, join(dest, name));
   }
-  const frames = join(dest, "frames");
-  mkdirSync(frames, { recursive: true });
-  const srcFrames = join(src, "frames");
-  if (!existsSync(srcFrames)) return;
-  for (const name of readdirSync(srcFrames)) {
-    if (name.startsWith("f_") && name.endsWith(".png")) copyFileSync(join(srcFrames, name), join(frames, name));
-  }
 }
 
 export function applyReply(outDir, sceneId, text) {
@@ -248,7 +241,6 @@ export function apply(ctx, config = {}) {
       payload.agent.followup(create(decision.text));
     } else if (live && process.env.VGH_OUT) {
       const src = join(process.env.VGH_OUT, "attempts", String(decision.kept));
-      if (existsSync(src)) publishAttempt(src, process.env.VGH_OUT);
       writeFileSync(
         join(process.env.VGH_OUT, "loop.json"),
         JSON.stringify({
@@ -259,6 +251,7 @@ export function apply(ctx, config = {}) {
           shortcuts: decision.shortcuts,
         }),
       );
+      if (existsSync(src)) publishAttempt(src, process.env.VGH_OUT);
     }
     return decision;
   });

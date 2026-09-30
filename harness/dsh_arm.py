@@ -105,6 +105,21 @@ def _first_from_attempt(out: Path, summary: dict) -> dict:
     return summary
 
 
+def _copy_frames(out: Path, summary: dict) -> None:
+    kept = summary.get("kept_attempt")
+    if kept is None:
+        return
+    src = out / "attempts" / str(kept) / "frames"
+    if not src.is_dir():
+        return
+    dest = out / "frames"
+    dest.mkdir(parents=True, exist_ok=True)
+    have = {path.name for path in dest.glob("f_*.png")}
+    for image in src.glob("f_*.png"):
+        if image.name not in have:
+            shutil.copy2(image, dest / image.name)
+
+
 def _plugin_summary(out: Path, scene: str, model: str) -> dict:
     score_path = out / "fair-score.json"
     if not score_path.exists():
@@ -116,6 +131,7 @@ def _plugin_summary(out: Path, scene: str, model: str) -> dict:
         summary.update(json.loads(loop_path.read_text(encoding="utf-8")))
     summary["scene_id"] = scene
     summary["model"] = model
+    _copy_frames(out, summary)
     return _first_from_attempt(out, summary)
 
 
