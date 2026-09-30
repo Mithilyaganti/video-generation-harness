@@ -4,3 +4,4 @@ __pycache__/
 *.env
 opencode-go.env
 .opencode/
+node_modules/

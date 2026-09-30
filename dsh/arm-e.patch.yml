@@ -1,0 +1,31 @@
+# Arm E operational overlay. Same plugins as B, space-bunny-free.
+- id: agent-default-model
+  config:
+    provider: vgh-go
+    model: space-bunny-free
+    reasoningEffort: low
+- id: approval
+  config:
+    policy: never
+- id: permission
+  config:
+    defaultPreset: headless-run
+    presets:
+      workspace-write:
+        sandbox: workspace-write
+        approval: ask
+        name: workspace-write
+        description: Write inside the workspace. Wider retries require approval.
+      danger-full-access:
+        sandbox: danger-full-access
+        approval: never
+        name: danger-full-access
+        description: Full file access without approval prompts.
+      headless-run:
+        sandbox: workspace-write
+        approval: never
+        name: headless-run
+        description: Write inside the workspace without an approval prompt.
+- id: bash-sandbox
+  config:
+    timeoutMs: 120000

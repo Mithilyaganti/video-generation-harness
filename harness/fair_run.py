@@ -197,9 +197,9 @@ def _render(script_path: Path, out_dir: Path, trace: Trace, fps: int, count: int
     return ran
 
 
-def _ask_messages(model: str, messages: list[dict], session: str, trace: Trace, step: str, max_tokens: int) -> str:
+def _ask_messages(model: str, messages: list[dict], session: str, trace: Trace, step: str, max_tokens: int, allow_final: bool = False) -> str:
     trace.add("prompt", step=step, text=messages[-1]["content"][:4000])
-    reply = chat(model, messages, session, max_tokens=max_tokens)
+    reply = chat(model, messages, session, max_tokens=max_tokens, allow_final=allow_final)
     text = redact(reply["content"])
     trace.add(
         "response",
@@ -830,7 +830,7 @@ def run_concrete_saved(brief: dict, model: str, src: Path, out_dir: Path, sessio
     return summary
 
 
-def run_full(brief: dict, model: str, out_dir: Path, session: str, crash_rounds: int = 2, note_rounds: int = 2) -> dict:
+def run_full(brief: dict, model: str, out_dir: Path, session: str, crash_rounds: int = 2, note_rounds: int = 2, allow_final: bool = False) -> dict:
     """First reply, then a crash retry, then the same expected-versus-found notes.
 
     The first reply is the one-shot arm. It gets no retry and no notes.
@@ -843,7 +843,7 @@ def run_full(brief: dict, model: str, out_dir: Path, session: str, crash_rounds:
         + "\n\nIn this single reply, write the record in a ```json fence and the drawing script in a ```python fence."
     )
     messages = [{"role": "user", "content": prompt}]
-    text = _ask_messages(model, messages, session, trace, "one_shot", 6000)
+    text = _ask_messages(model, messages, session, trace, "one_shot", 6000, allow_final=allow_final)
     messages.append({"role": "assistant", "content": text})
     _apply_reply(out_dir, brief, text, trace, plant_id, "one_shot")
     trace.add("snapshot", kind="log", has_plant=_log_plant(out_dir, plant_id))
@@ -862,7 +862,7 @@ def run_full(brief: dict, model: str, out_dir: Path, session: str, crash_rounds:
         attempt = round_i
         feedback = "The script failed.\n" + _crash_text(trace)
         messages.append({"role": "user", "content": feedback})
-        text = _ask_messages(model, messages, session, trace, f"crash-{round_i}", 6000)
+        text = _ask_messages(model, messages, session, trace, f"crash-{round_i}", 6000, allow_final=allow_final)
         messages.append({"role": "assistant", "content": text})
         _apply_reply(out_dir, brief, text, trace, plant_id, "crash")
         trace.add("snapshot", kind="log", has_plant=_log_plant(out_dir, plant_id))
@@ -906,7 +906,7 @@ def run_full(brief: dict, model: str, out_dir: Path, session: str, crash_rounds:
         if (out_dir / "record.json").exists():
             kept = _read_json(out_dir / "record.json")
             note_trace.add("record", has_plant=_plant_flag(kept, plant_id), source="kept")
-        text = _ask_messages(model, [{"role": "user", "content": feedback}], session, note_trace, f"concrete-{round_i}", 6000)
+        text = _ask_messages(model, [{"role": "user", "content": feedback}], session, note_trace, f"concrete-{round_i}", 6000, allow_final=allow_final)
         _apply_reply(out_dir, brief, text, note_trace, plant_id, "concrete")
         note_trace.add("snapshot", kind="log", has_plant=_log_plant(out_dir, plant_id))
         summary = _finish(out_dir, brief, note_trace, "full", model, "model_code")
@@ -981,6 +981,7 @@ def main() -> None:
     parser.add_argument("--media", type=Path)
     parser.add_argument("--pass-id", default="fair-1")
     parser.add_argument("--source", type=Path)
+    parser.add_argument("--allow-final", action="store_true")
     args = parser.parse_args()
     if args.selfcheck:
         self_check()
@@ -1001,7 +1002,7 @@ def main() -> None:
             raise SystemExit("--source is required for concrete")
         summary = run_concrete_saved(brief, args.model, args.source, out, session)
     elif args.mode == "full":
-        summary = run_full(brief, args.model, out, session)
+        summary = run_full(brief, args.model, out, session, allow_final=args.allow_final)
     else:
         summary = run_staged(brief, args.model, out, session)
     print(json.dumps(summary))
