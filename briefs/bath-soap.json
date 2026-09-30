@@ -1,0 +1,80 @@
+{
+  "scene_id": "bath-soap",
+  "tell_frames": false,
+  "setting": "a bathroom ledge",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#102028",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A tap is visible for about the first second, then it is gone. Later, a soap appears and stays for about two seconds, then it is gone. The soap does not appear before the tap. A tub stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "tub",
+      "kind": "tub",
+      "color": "#d8d2c8",
+      "shape": "box",
+      "x": 18,
+      "y": 108,
+      "w": 80,
+      "h": 52,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "tap",
+      "kind": "tap",
+      "color": "#7ec8e3",
+      "shape": "box",
+      "x": 20,
+      "y": 18,
+      "w": 48,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 10
+    },
+    {
+      "id": "soap",
+      "kind": "soap",
+      "color": "#ff5a8a",
+      "shape": "box",
+      "x": 210,
+      "y": 30,
+      "w": 64,
+      "h": 56,
+      "from_frame": 14,
+      "to_frame": 37
+    }
+  ],
+  "plant": {
+    "id": "soap",
+    "kind": "soap",
+    "color": "#ff5a8a",
+    "shape": "box",
+    "x": 210,
+    "y": 30,
+    "w": 64,
+    "h": 56,
+    "from_frame": 14,
+    "to_frame": 37,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the soap appear before the tap?",
+    "asked_id": "soap",
+    "asked_kind": "soap",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The tap is already running when the soap shows up.",
+    "nearby_id": "tub",
+    "earlier": "soap",
+    "later": "tap",
+    "true_key": "The soap appears before the tap."
+  }
+}

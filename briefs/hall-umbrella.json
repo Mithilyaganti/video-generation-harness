@@ -1,0 +1,80 @@
+{
+  "scene_id": "hall-umbrella",
+  "tell_frames": false,
+  "setting": "a hall stand",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#201818",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A sign is visible for about the first second, then it is gone. Later, a umbrella appears and stays for about two seconds, then it is gone. The umbrella does not appear before the sign. A stand stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "stand",
+      "kind": "stand",
+      "color": "#a98462",
+      "shape": "box",
+      "x": 18,
+      "y": 108,
+      "w": 56,
+      "h": 56,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "sign",
+      "kind": "sign",
+      "color": "#e07a5f",
+      "shape": "box",
+      "x": 90,
+      "y": 14,
+      "w": 70,
+      "h": 36,
+      "from_frame": 1,
+      "to_frame": 10
+    },
+    {
+      "id": "umbrella",
+      "kind": "umbrella",
+      "color": "#d6d3de",
+      "shape": "box",
+      "x": 200,
+      "y": 20,
+      "w": 48,
+      "h": 90,
+      "from_frame": 15,
+      "to_frame": 38
+    }
+  ],
+  "plant": {
+    "id": "umbrella",
+    "kind": "umbrella",
+    "color": "#d6d3de",
+    "shape": "box",
+    "x": 200,
+    "y": 20,
+    "w": 48,
+    "h": 90,
+    "from_frame": 15,
+    "to_frame": 38,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the umbrella appear before the sign?",
+    "asked_id": "umbrella",
+    "asked_kind": "umbrella",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The sign is already posted when the umbrella shows up.",
+    "nearby_id": "stand",
+    "earlier": "umbrella",
+    "later": "sign",
+    "true_key": "The umbrella appears before the sign."
+  }
+}

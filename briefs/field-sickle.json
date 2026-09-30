@@ -1,0 +1,80 @@
+{
+  "scene_id": "field-sickle",
+  "tell_frames": false,
+  "setting": "a field fence",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#142018",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A hat is visible for about the first second, then it is gone. Later, a sickle appears and stays for about two seconds, then it is gone. The sickle does not appear before the hat. A fence stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "fence",
+      "kind": "fence",
+      "color": "#b7c4a1",
+      "shape": "box",
+      "x": 12,
+      "y": 100,
+      "w": 96,
+      "h": 40,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "hat",
+      "kind": "hat",
+      "color": "#e6c36a",
+      "shape": "box",
+      "x": 24,
+      "y": 12,
+      "w": 64,
+      "h": 40,
+      "from_frame": 2,
+      "to_frame": 11
+    },
+    {
+      "id": "sickle",
+      "kind": "sickle",
+      "color": "#e8e6e1",
+      "shape": "box",
+      "x": 198,
+      "y": 36,
+      "w": 86,
+      "h": 48,
+      "from_frame": 13,
+      "to_frame": 36
+    }
+  ],
+  "plant": {
+    "id": "sickle",
+    "kind": "sickle",
+    "color": "#e8e6e1",
+    "shape": "box",
+    "x": 198,
+    "y": 36,
+    "w": 86,
+    "h": 48,
+    "from_frame": 13,
+    "to_frame": 36,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the sickle appear before the hat?",
+    "asked_id": "sickle",
+    "asked_kind": "sickle",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The hat is already hanging when the sickle shows up.",
+    "nearby_id": "fence",
+    "earlier": "sickle",
+    "later": "hat",
+    "true_key": "The sickle appears before the hat."
+  }
+}

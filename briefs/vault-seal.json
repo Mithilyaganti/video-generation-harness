@@ -1,0 +1,80 @@
+{
+  "scene_id": "vault-seal",
+  "tell_frames": false,
+  "setting": "a vault door",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#16141c",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A key is visible for about the first second, then it is gone. Later, a seal appears and stays for about two seconds, then it is gone. The seal does not appear before the key. A door stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "door",
+      "kind": "door",
+      "color": "#8a93a0",
+      "shape": "box",
+      "x": 16,
+      "y": 40,
+      "w": 70,
+      "h": 110,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "key",
+      "kind": "key",
+      "color": "#e0b44a",
+      "shape": "box",
+      "x": 200,
+      "y": 16,
+      "w": 64,
+      "h": 28,
+      "from_frame": 0,
+      "to_frame": 12
+    },
+    {
+      "id": "seal",
+      "kind": "seal",
+      "color": "#d8c7e6",
+      "shape": "box",
+      "x": 188,
+      "y": 70,
+      "w": 80,
+      "h": 64,
+      "from_frame": 16,
+      "to_frame": 39
+    }
+  ],
+  "plant": {
+    "id": "seal",
+    "kind": "seal",
+    "color": "#d8c7e6",
+    "shape": "box",
+    "x": 188,
+    "y": 70,
+    "w": 80,
+    "h": 64,
+    "from_frame": 16,
+    "to_frame": 39,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the seal appear before the key?",
+    "asked_id": "seal",
+    "asked_kind": "seal",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The key is already on the door when the seal shows up.",
+    "nearby_id": "door",
+    "earlier": "seal",
+    "later": "key",
+    "true_key": "The seal appears before the key."
+  }
+}

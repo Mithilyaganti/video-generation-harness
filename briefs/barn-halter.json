@@ -1,0 +1,80 @@
+{
+  "scene_id": "barn-halter",
+  "tell_frames": false,
+  "setting": "a barn aisle",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#1c1814",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A lantern is visible for about the first second, then it is gone. Later, a halter appears and stays for about two seconds, then it is gone. The halter does not appear before the lantern. A stall stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "stall",
+      "kind": "stall",
+      "color": "#d7b07a",
+      "shape": "box",
+      "x": 16,
+      "y": 112,
+      "w": 72,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "lantern",
+      "kind": "lantern",
+      "color": "#ffe56a",
+      "shape": "box",
+      "x": 16,
+      "y": 16,
+      "w": 56,
+      "h": 56,
+      "from_frame": 0,
+      "to_frame": 11
+    },
+    {
+      "id": "halter",
+      "kind": "halter",
+      "color": "#e7e2da",
+      "shape": "box",
+      "x": 196,
+      "y": 24,
+      "w": 80,
+      "h": 68,
+      "from_frame": 12,
+      "to_frame": 35
+    }
+  ],
+  "plant": {
+    "id": "halter",
+    "kind": "halter",
+    "color": "#e7e2da",
+    "shape": "box",
+    "x": 196,
+    "y": 24,
+    "w": 80,
+    "h": 68,
+    "from_frame": 12,
+    "to_frame": 35,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the halter appear before the lantern?",
+    "asked_id": "halter",
+    "asked_kind": "halter",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The lantern is already lit when the halter shows up.",
+    "nearby_id": "stall",
+    "earlier": "halter",
+    "later": "lantern",
+    "true_key": "The halter appears before the lantern."
+  }
+}

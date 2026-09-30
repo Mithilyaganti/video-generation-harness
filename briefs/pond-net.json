@@ -1,0 +1,80 @@
+{
+  "scene_id": "pond-net",
+  "tell_frames": false,
+  "setting": "a pond edge",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#10241c",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A buoy is visible for about the first second, then it is gone. Later, a net appears and stays for about two seconds, then it is gone. The net does not appear before the buoy. A reed stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "reed",
+      "kind": "reed",
+      "color": "#7d9a4e",
+      "shape": "box",
+      "x": 16,
+      "y": 96,
+      "w": 36,
+      "h": 68,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "buoy",
+      "kind": "buoy",
+      "color": "#f25c54",
+      "shape": "box",
+      "x": 70,
+      "y": 20,
+      "w": 48,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 7
+    },
+    {
+      "id": "net",
+      "kind": "net",
+      "color": "#d5dde6",
+      "shape": "box",
+      "x": 180,
+      "y": 28,
+      "w": 96,
+      "h": 52,
+      "from_frame": 19,
+      "to_frame": 42
+    }
+  ],
+  "plant": {
+    "id": "net",
+    "kind": "net",
+    "color": "#d5dde6",
+    "shape": "box",
+    "x": 180,
+    "y": 28,
+    "w": 96,
+    "h": 52,
+    "from_frame": 19,
+    "to_frame": 42,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the net appear before the buoy?",
+    "asked_id": "net",
+    "asked_kind": "net",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The buoy is already floating when the net shows up.",
+    "nearby_id": "reed",
+    "earlier": "net",
+    "later": "buoy",
+    "true_key": "The net appears before the buoy."
+  }
+}

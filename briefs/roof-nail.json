@@ -1,0 +1,80 @@
+{
+  "scene_id": "roof-nail",
+  "tell_frames": false,
+  "setting": "a roof board",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#1c1c18",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A hammer is visible for about the first second, then it is gone. Later, a nail appears and stays for about two seconds, then it is gone. The nail does not appear before the hammer. A shingle stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "shingle",
+      "kind": "shingle",
+      "color": "#8d6a45",
+      "shape": "box",
+      "x": 14,
+      "y": 114,
+      "w": 100,
+      "h": 42,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "hammer",
+      "kind": "hammer",
+      "color": "#d9a441",
+      "shape": "box",
+      "x": 20,
+      "y": 16,
+      "w": 72,
+      "h": 40,
+      "from_frame": 1,
+      "to_frame": 9
+    },
+    {
+      "id": "nail",
+      "kind": "nail",
+      "color": "#e4e7ee",
+      "shape": "box",
+      "x": 210,
+      "y": 34,
+      "w": 28,
+      "h": 72,
+      "from_frame": 14,
+      "to_frame": 37
+    }
+  ],
+  "plant": {
+    "id": "nail",
+    "kind": "nail",
+    "color": "#e4e7ee",
+    "shape": "box",
+    "x": 210,
+    "y": 34,
+    "w": 28,
+    "h": 72,
+    "from_frame": 14,
+    "to_frame": 37,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the nail appear before the hammer?",
+    "asked_id": "nail",
+    "asked_kind": "nail",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The hammer is already resting when the nail shows up.",
+    "nearby_id": "shingle",
+    "earlier": "nail",
+    "later": "hammer",
+    "true_key": "The nail appears before the hammer."
+  }
+}

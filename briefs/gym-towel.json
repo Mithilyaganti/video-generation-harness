@@ -1,0 +1,80 @@
+{
+  "scene_id": "gym-towel",
+  "tell_frames": false,
+  "setting": "a gym bench",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#181820",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A clock is visible for about the first second, then it is gone. Later, a towel appears and stays for about two seconds, then it is gone. The towel does not appear before the clock. A mat stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "mat",
+      "kind": "mat",
+      "color": "#3f6b4a",
+      "shape": "box",
+      "x": 16,
+      "y": 120,
+      "w": 100,
+      "h": 40,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "clock",
+      "kind": "clock",
+      "color": "#f2d36b",
+      "shape": "box",
+      "x": 18,
+      "y": 16,
+      "w": 52,
+      "h": 52,
+      "from_frame": 0,
+      "to_frame": 8
+    },
+    {
+      "id": "towel",
+      "kind": "towel",
+      "color": "#f7f3ee",
+      "shape": "box",
+      "x": 206,
+      "y": 28,
+      "w": 72,
+      "h": 60,
+      "from_frame": 20,
+      "to_frame": 43
+    }
+  ],
+  "plant": {
+    "id": "towel",
+    "kind": "towel",
+    "color": "#f7f3ee",
+    "shape": "box",
+    "x": 206,
+    "y": 28,
+    "w": 72,
+    "h": 60,
+    "from_frame": 20,
+    "to_frame": 43,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the towel appear before the clock?",
+    "asked_id": "towel",
+    "asked_kind": "towel",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The clock is already up when the towel shows up.",
+    "nearby_id": "mat",
+    "earlier": "towel",
+    "later": "clock",
+    "true_key": "The towel appears before the clock."
+  }
+}
