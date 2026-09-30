@@ -1,0 +1,80 @@
+{
+  "scene_id": "annex-badge",
+  "tell_frames": false,
+  "setting": "an annex locker",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#201818",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A locker is visible for about the first second, then it is gone. Later, a badge appears and stays for about two seconds, then it is gone. The badge does not appear before the locker. A bench stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "bench",
+      "kind": "bench",
+      "color": "#b7c4a1",
+      "shape": "box",
+      "x": 14,
+      "y": 118,
+      "w": 110,
+      "h": 40,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "locker",
+      "kind": "locker",
+      "color": "#4aa3ff",
+      "shape": "box",
+      "x": 18,
+      "y": 16,
+      "w": 56,
+      "h": 80,
+      "from_frame": 0,
+      "to_frame": 7
+    },
+    {
+      "id": "badge",
+      "kind": "badge",
+      "color": "#f2c14e",
+      "shape": "box",
+      "x": 200,
+      "y": 36,
+      "w": 64,
+      "h": 48,
+      "from_frame": 19,
+      "to_frame": 42
+    }
+  ],
+  "plant": {
+    "id": "badge",
+    "kind": "badge",
+    "color": "#f2c14e",
+    "shape": "box",
+    "x": 200,
+    "y": 36,
+    "w": 64,
+    "h": 48,
+    "from_frame": 19,
+    "to_frame": 42,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the badge appear before the locker?",
+    "asked_id": "badge",
+    "asked_kind": "badge",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The locker is already shut when the badge shows up.",
+    "nearby_id": "bench",
+    "earlier": "badge",
+    "later": "locker",
+    "true_key": "The badge appears before the locker."
+  }
+}

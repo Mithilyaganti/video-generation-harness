@@ -1,0 +1,80 @@
+{
+  "scene_id": "study-globe",
+  "tell_frames": false,
+  "setting": "a study desk",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#16141c",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A lamp is visible for about the first second, then it is gone. Later, a globe appears and stays for about two seconds, then it is gone. The globe does not appear before the lamp. A desk stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "desk",
+      "kind": "desk",
+      "color": "#a67c52",
+      "shape": "box",
+      "x": 14,
+      "y": 116,
+      "w": 110,
+      "h": 44,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "lamp",
+      "kind": "lamp",
+      "color": "#f0d060",
+      "shape": "box",
+      "x": 18,
+      "y": 14,
+      "w": 48,
+      "h": 56,
+      "from_frame": 2,
+      "to_frame": 11
+    },
+    {
+      "id": "globe",
+      "kind": "globe",
+      "color": "#6ec8ff",
+      "shape": "box",
+      "x": 200,
+      "y": 30,
+      "w": 72,
+      "h": 72,
+      "from_frame": 13,
+      "to_frame": 36
+    }
+  ],
+  "plant": {
+    "id": "globe",
+    "kind": "globe",
+    "color": "#6ec8ff",
+    "shape": "box",
+    "x": 200,
+    "y": 30,
+    "w": 72,
+    "h": 72,
+    "from_frame": 13,
+    "to_frame": 36,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the globe appear before the lamp?",
+    "asked_id": "globe",
+    "asked_kind": "globe",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The lamp is already lit when the globe shows up.",
+    "nearby_id": "desk",
+    "earlier": "globe",
+    "later": "lamp",
+    "true_key": "The globe appears before the lamp."
+  }
+}

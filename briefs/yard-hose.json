@@ -1,0 +1,80 @@
+{
+  "scene_id": "yard-hose",
+  "tell_frames": false,
+  "setting": "a yard gate",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#10241c",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A spigot is visible for about the first second, then it is gone. Later, a hose appears and stays for about two seconds, then it is gone. The hose does not appear before the spigot. A gate stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "gate",
+      "kind": "gate",
+      "color": "#8a93a0",
+      "shape": "box",
+      "x": 16,
+      "y": 48,
+      "w": 56,
+      "h": 100,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "spigot",
+      "kind": "spigot",
+      "color": "#e07a5f",
+      "shape": "box",
+      "x": 100,
+      "y": 16,
+      "w": 40,
+      "h": 48,
+      "from_frame": 2,
+      "to_frame": 10
+    },
+    {
+      "id": "hose",
+      "kind": "hose",
+      "color": "#f4f0e6",
+      "shape": "box",
+      "x": 180,
+      "y": 80,
+      "w": 100,
+      "h": 36,
+      "from_frame": 12,
+      "to_frame": 35
+    }
+  ],
+  "plant": {
+    "id": "hose",
+    "kind": "hose",
+    "color": "#f4f0e6",
+    "shape": "box",
+    "x": 180,
+    "y": 80,
+    "w": 100,
+    "h": 36,
+    "from_frame": 12,
+    "to_frame": 35,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the hose appear before the spigot?",
+    "asked_id": "hose",
+    "asked_kind": "hose",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The spigot is already open when the hose shows up.",
+    "nearby_id": "gate",
+    "earlier": "hose",
+    "later": "spigot",
+    "true_key": "The hose appears before the spigot."
+  }
+}

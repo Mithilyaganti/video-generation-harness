@@ -1,0 +1,80 @@
+{
+  "scene_id": "terrace-jug",
+  "tell_frames": false,
+  "setting": "a terrace table",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#142018",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A chair is visible for about the first second, then it is gone. Later, a jug appears and stays for about two seconds, then it is gone. The jug does not appear before the chair. A tile stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "tile",
+      "kind": "tile",
+      "color": "#c46b4a",
+      "shape": "box",
+      "x": 12,
+      "y": 120,
+      "w": 100,
+      "h": 40,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "chair",
+      "kind": "chair",
+      "color": "#d8d2c8",
+      "shape": "box",
+      "x": 20,
+      "y": 16,
+      "w": 64,
+      "h": 56,
+      "from_frame": 0,
+      "to_frame": 8
+    },
+    {
+      "id": "jug",
+      "kind": "jug",
+      "color": "#3d7ea6",
+      "shape": "box",
+      "x": 206,
+      "y": 28,
+      "w": 52,
+      "h": 70,
+      "from_frame": 20,
+      "to_frame": 43
+    }
+  ],
+  "plant": {
+    "id": "jug",
+    "kind": "jug",
+    "color": "#3d7ea6",
+    "shape": "box",
+    "x": 206,
+    "y": 28,
+    "w": 52,
+    "h": 70,
+    "from_frame": 20,
+    "to_frame": 43,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the jug appear before the chair?",
+    "asked_id": "jug",
+    "asked_kind": "jug",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The chair is already pulled in when the jug shows up.",
+    "nearby_id": "tile",
+    "earlier": "jug",
+    "later": "chair",
+    "true_key": "The jug appears before the chair."
+  }
+}

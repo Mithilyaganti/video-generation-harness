@@ -1,0 +1,80 @@
+{
+  "scene_id": "quay-cleat",
+  "tell_frames": false,
+  "setting": "a quay wall",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#102028",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A rope is visible for about the first second, then it is gone. Later, a cleat appears and stays for about two seconds, then it is gone. The cleat does not appear before the rope. A piling stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "piling",
+      "kind": "piling",
+      "color": "#8d6a45",
+      "shape": "box",
+      "x": 16,
+      "y": 40,
+      "w": 40,
+      "h": 110,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "rope",
+      "kind": "rope",
+      "color": "#e6c36a",
+      "shape": "box",
+      "x": 80,
+      "y": 18,
+      "w": 90,
+      "h": 28,
+      "from_frame": 1,
+      "to_frame": 11
+    },
+    {
+      "id": "cleat",
+      "kind": "cleat",
+      "color": "#d5dde6",
+      "shape": "box",
+      "x": 190,
+      "y": 70,
+      "w": 72,
+      "h": 48,
+      "from_frame": 16,
+      "to_frame": 39
+    }
+  ],
+  "plant": {
+    "id": "cleat",
+    "kind": "cleat",
+    "color": "#d5dde6",
+    "shape": "box",
+    "x": 190,
+    "y": 70,
+    "w": 72,
+    "h": 48,
+    "from_frame": 16,
+    "to_frame": 39,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the cleat appear before the rope?",
+    "asked_id": "cleat",
+    "asked_kind": "cleat",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The rope is already coiled when the cleat shows up.",
+    "nearby_id": "piling",
+    "earlier": "cleat",
+    "later": "rope",
+    "true_key": "The cleat appears before the rope."
+  }
+}

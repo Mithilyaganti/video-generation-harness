@@ -830,6 +830,103 @@ def run_concrete_saved(brief: dict, model: str, src: Path, out_dir: Path, sessio
     return summary
 
 
+def run_full(brief: dict, model: str, out_dir: Path, session: str, crash_rounds: int = 2, note_rounds: int = 2) -> dict:
+    """First reply, then a crash retry, then the same expected-versus-found notes.
+
+    The first reply is the one-shot arm. It gets no retry and no notes.
+    """
+    out_dir.mkdir(parents=True, exist_ok=True)
+    trace = Trace()
+    plant_id = brief["plant"]["id"]
+    prompt = (
+        packet(brief)
+        + "\n\nIn this single reply, write the record in a ```json fence and the drawing script in a ```python fence."
+    )
+    messages = [{"role": "user", "content": prompt}]
+    text = _ask_messages(model, messages, session, trace, "one_shot", 6000)
+    messages.append({"role": "assistant", "content": text})
+    _apply_reply(out_dir, brief, text, trace, plant_id, "one_shot")
+    trace.add("snapshot", kind="log", has_plant=_log_plant(out_dir, plant_id))
+    summary = _finish(out_dir, brief, trace, "full", model, "model_code")
+    _snapshot(out_dir, 0)
+    best = summary
+    best_n = 0
+    attempt = 0
+    first = _arm(summary)
+    first["first_shortcuts"] = summary.get("shortcuts")
+    crash_used = 0
+    for round_i in range(1, crash_rounds + 1):
+        if summary.get("valid_clip"):
+            break
+        crash_used = round_i
+        attempt = round_i
+        feedback = "The script failed.\n" + _crash_text(trace)
+        messages.append({"role": "user", "content": feedback})
+        text = _ask_messages(model, messages, session, trace, f"crash-{round_i}", 6000)
+        messages.append({"role": "assistant", "content": text})
+        _apply_reply(out_dir, brief, text, trace, plant_id, "crash")
+        trace.add("snapshot", kind="log", has_plant=_log_plant(out_dir, plant_id))
+        summary = _finish(out_dir, brief, trace, "full", model, "model_code")
+        _snapshot(out_dir, attempt)
+        if _better_clip(summary, best):
+            best = summary
+            best_n = attempt
+    if best_n != attempt:
+        _restore(out_dir, best_n)
+        summary = json.loads((out_dir / "fair-score.json").read_text())["summary"]
+    note_used = 0
+    for round_i in range(1, note_rounds + 1):
+        if best_n != attempt:
+            _restore(out_dir, best_n)
+            summary = json.loads((out_dir / "fair-score.json").read_text())["summary"]
+        if summary.get("strict_pass") and summary.get("picture"):
+            break
+        packed = json.loads((out_dir / "fair-score.json").read_text()) if (out_dir / "fair-score.json").exists() else {}
+        strict = _scored(out_dir, packed)
+        picture = summary.get("picture_detail") or {"picture": summary.get("picture"), "reason": ""}
+        lines = concrete_lines(out_dir, brief, strict, picture)
+        if not lines:
+            break
+        note_used = round_i
+        attempt += 1
+        (out_dir / f"concrete-notes-{round_i}.txt").write_text("\n".join(lines) + "\n")
+        record_text = (out_dir / "record.json").read_text() if (out_dir / "record.json").exists() else ""
+        script_text = (out_dir / "scene.py").read_text() if (out_dir / "scene.py").exists() else ""
+        feedback = (
+            "Checks that failed:\n"
+            + "\n".join(f"- {line}" for line in lines)
+            + "\n\nCurrent record:\n"
+            + record_text
+            + "\n\nCurrent script:\n"
+            + script_text
+            + "\n\nReply with the corrected record in a ```json fence and the full drawing script in a ```python fence. "
+            + "The script must still write the frames, log.json, and trap.json."
+        )
+        note_trace = Trace()
+        if (out_dir / "record.json").exists():
+            kept = _read_json(out_dir / "record.json")
+            note_trace.add("record", has_plant=_plant_flag(kept, plant_id), source="kept")
+        text = _ask_messages(model, [{"role": "user", "content": feedback}], session, note_trace, f"concrete-{round_i}", 6000)
+        _apply_reply(out_dir, brief, text, note_trace, plant_id, "concrete")
+        note_trace.add("snapshot", kind="log", has_plant=_log_plant(out_dir, plant_id))
+        summary = _finish(out_dir, brief, note_trace, "full", model, "model_code")
+        _snapshot(out_dir, attempt)
+        if _better_clip(summary, best):
+            best = summary
+            best_n = attempt
+    if best_n != attempt:
+        _restore(out_dir, best_n)
+        summary = json.loads((out_dir / "fair-score.json").read_text())["summary"]
+    summary["crash_rounds"] = crash_used
+    summary["note_rounds"] = note_used
+    summary["rounds_used"] = crash_used + note_used
+    summary["kept_attempt"] = best_n
+    summary["mode"] = "full"
+    summary.update(first)
+    (out_dir / "fair-score.json").write_text(json.dumps({"summary": summary}, indent=2))
+    return summary
+
+
 def self_check() -> None:
     text = "```json\n{\"scene_id\": \"x\", \"plant\": {\"id\": \"fern\", \"frames\": [1]}}\n```\n```python\nimport sys\nprint(1)\n```"
     record, script, record_first = split_reply(text)
@@ -879,7 +976,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--selfcheck", action="store_true")
     parser.add_argument("--scene")
-    parser.add_argument("--mode", choices=["one-shot", "staged", "repair", "crash", "concrete"])
+    parser.add_argument("--mode", choices=["one-shot", "staged", "repair", "crash", "concrete", "full"])
     parser.add_argument("--model", default="space-bunny-free")
     parser.add_argument("--media", type=Path)
     parser.add_argument("--pass-id", default="fair-1")
@@ -903,6 +1000,8 @@ def main() -> None:
         if args.source is None:
             raise SystemExit("--source is required for concrete")
         summary = run_concrete_saved(brief, args.model, args.source, out, session)
+    elif args.mode == "full":
+        summary = run_full(brief, args.model, out, session)
     else:
         summary = run_staged(brief, args.model, out, session)
     print(json.dumps(summary))

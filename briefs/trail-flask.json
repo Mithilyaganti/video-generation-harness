@@ -1,0 +1,80 @@
+{
+  "scene_id": "trail-flask",
+  "tell_frames": false,
+  "setting": "a trail stump",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#241810",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A map is visible for about the first second, then it is gone. Later, a flask appears and stays for about two seconds, then it is gone. The flask does not appear before the map. A stump stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "stump",
+      "kind": "stump",
+      "color": "#c48a4a",
+      "shape": "box",
+      "x": 16,
+      "y": 112,
+      "w": 72,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "map",
+      "kind": "map",
+      "color": "#e7d59a",
+      "shape": "box",
+      "x": 18,
+      "y": 16,
+      "w": 70,
+      "h": 44,
+      "from_frame": 1,
+      "to_frame": 10
+    },
+    {
+      "id": "flask",
+      "kind": "flask",
+      "color": "#dfe3ea",
+      "shape": "box",
+      "x": 198,
+      "y": 26,
+      "w": 48,
+      "h": 72,
+      "from_frame": 15,
+      "to_frame": 38
+    }
+  ],
+  "plant": {
+    "id": "flask",
+    "kind": "flask",
+    "color": "#dfe3ea",
+    "shape": "box",
+    "x": 198,
+    "y": 26,
+    "w": 48,
+    "h": 72,
+    "from_frame": 15,
+    "to_frame": 38,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the flask appear before the map?",
+    "asked_id": "flask",
+    "asked_kind": "flask",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The map is already spread when the flask shows up.",
+    "nearby_id": "stump",
+    "earlier": "flask",
+    "later": "map",
+    "true_key": "The flask appears before the map."
+  }
+}

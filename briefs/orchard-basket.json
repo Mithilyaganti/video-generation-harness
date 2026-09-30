@@ -1,0 +1,80 @@
+{
+  "scene_id": "orchard-basket",
+  "tell_frames": false,
+  "setting": "an orchard crate",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#1a1814",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A bird is visible for about the first second, then it is gone. Later, a basket appears and stays for about two seconds, then it is gone. The basket does not appear before the bird. A crate stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "crate",
+      "kind": "crate",
+      "color": "#c4a06a",
+      "shape": "box",
+      "x": 14,
+      "y": 112,
+      "w": 88,
+      "h": 48,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "bird",
+      "kind": "bird",
+      "color": "#e23b3b",
+      "shape": "box",
+      "x": 18,
+      "y": 16,
+      "w": 48,
+      "h": 40,
+      "from_frame": 0,
+      "to_frame": 11
+    },
+    {
+      "id": "basket",
+      "kind": "basket",
+      "color": "#f4e7c5",
+      "shape": "box",
+      "x": 196,
+      "y": 28,
+      "w": 80,
+      "h": 64,
+      "from_frame": 12,
+      "to_frame": 35
+    }
+  ],
+  "plant": {
+    "id": "basket",
+    "kind": "basket",
+    "color": "#f4e7c5",
+    "shape": "box",
+    "x": 196,
+    "y": 28,
+    "w": 80,
+    "h": 64,
+    "from_frame": 12,
+    "to_frame": 35,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the basket appear before the bird?",
+    "asked_id": "basket",
+    "asked_kind": "basket",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The bird is already perched when the basket shows up.",
+    "nearby_id": "crate",
+    "earlier": "basket",
+    "later": "bird",
+    "true_key": "The basket appears before the bird."
+  }
+}
