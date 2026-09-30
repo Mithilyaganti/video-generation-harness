@@ -1,0 +1,80 @@
+{
+  "scene_id": "mill-sack",
+  "tell_frames": false,
+  "setting": "a mill floor",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#141820",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A bell is visible for about the first second, then it is gone. Later, a sack appears and stays for about two seconds, then it is gone. The sack does not appear before the bell. A beam stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "beam",
+      "kind": "beam",
+      "color": "#b08968",
+      "shape": "box",
+      "x": 12,
+      "y": 112,
+      "w": 120,
+      "h": 36,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "bell",
+      "kind": "bell",
+      "color": "#f0c14e",
+      "shape": "box",
+      "x": 22,
+      "y": 14,
+      "w": 48,
+      "h": 48,
+      "from_frame": 2,
+      "to_frame": 10
+    },
+    {
+      "id": "sack",
+      "kind": "sack",
+      "color": "#e6dcc8",
+      "shape": "box",
+      "x": 188,
+      "y": 40,
+      "w": 84,
+      "h": 62,
+      "from_frame": 12,
+      "to_frame": 35
+    }
+  ],
+  "plant": {
+    "id": "sack",
+    "kind": "sack",
+    "color": "#e6dcc8",
+    "shape": "box",
+    "x": 188,
+    "y": 40,
+    "w": 84,
+    "h": 62,
+    "from_frame": 12,
+    "to_frame": 35,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the sack appear before the bell?",
+    "asked_id": "sack",
+    "asked_kind": "sack",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The bell is already hung when the sack shows up.",
+    "nearby_id": "beam",
+    "earlier": "sack",
+    "later": "bell",
+    "true_key": "The sack appears before the bell."
+  }
+}

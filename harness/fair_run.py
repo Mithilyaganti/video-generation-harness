@@ -386,6 +386,11 @@ def _finish(out_dir: Path, brief: dict, trace: Trace, mode: str, model: str, ren
         "shortcut_detail": {key: shortcuts.get(key) for key in ("claim", "reason", "detail") if key in shortcuts},
     }
     summary["fail_lines"] = _fail_lines(strict, picture)
+    exit_code = None
+    for event in trace.events:
+        if event.get("event") == "render_done":
+            exit_code = event.get("exit")
+    summary["valid_clip"] = exit_code == 0 and (out_dir / "clip.mp4").exists()
     (out_dir / "fair-score.json").write_text(json.dumps({"summary": summary, "strict": strict}, indent=2))
     return summary
 
@@ -397,6 +402,162 @@ def _fail_lines(strict: dict, picture: dict) -> list[str]:
             lines.append(f"{name}: {item.get('detail')}")
     if not picture.get("picture"):
         lines.append("picture: " + str(picture.get("reason") or "plant not visible in the decoded mp4"))
+    return lines
+
+
+def _read_json(path: Path):
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text())
+    except json.JSONDecodeError:
+        return {}
+
+
+def _log_ids(log: dict) -> list[str]:
+    found = []
+    seen = set()
+    for frame in log.get("frames") or []:
+        for obj in frame.get("objects") or []:
+            name = obj.get("id")
+            if name and name not in seen:
+                seen.add(name)
+                found.append(str(name))
+    return found
+
+
+def _first_index(log: dict, obj_id: str):
+    for frame in log.get("frames") or []:
+        for obj in frame.get("objects") or []:
+            if obj.get("id") == obj_id:
+                return frame.get("index")
+    return None
+
+
+def _has_plant_flags(out_dir: Path) -> list[bool]:
+    flags = []
+    path = out_dir / "trace.jsonl"
+    if not path.exists():
+        return flags
+    for line in path.read_text().splitlines():
+        if not line.strip():
+            continue
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if "has_plant" in event:
+            flags.append(bool(event["has_plant"]))
+    return flags
+
+
+def _scored(out_dir: Path, saved: dict | None = None) -> dict:
+    strict = (saved or {}).get("strict") or {}
+    if strict.get("hard"):
+        return strict
+    try:
+        return _checker().score_clip(out_dir)
+    except Exception:
+        return strict
+
+
+def concrete_lines(out_dir: Path, brief: dict, strict: dict, picture: dict) -> list[str]:
+    """Say the expected value and the found value for each failed gate."""
+    hard = strict.get("hard") or {}
+    record = _read_json(out_dir / "record.json")
+    log = _read_json(out_dir / "log.json")
+    trap = _read_json(out_dir / "trap.json")
+    plant_id = brief["plant"]["id"]
+    later_id = brief["trap"]["later"]
+    record_plant = (record.get("plant") or {}).get("id")
+    ids = _log_ids(log)
+    claim = trap.get("claim") or {}
+    earlier = claim.get("earlier")
+    later = claim.get("later")
+    missing = [name for name in (earlier, later) if name and _first_index(log, name) is None]
+    key = None
+    if log.get("frames") and claim:
+        frames = _checker().frame_list(log)
+        key, _holds = _checker().oracle_key(frames, trap)
+    answers = trap.get("answers")
+    flags = _has_plant_flags(out_dir)
+    lines = []
+
+    def failed(name: str) -> bool:
+        item = hard.get(name)
+        return isinstance(item, dict) and not item.get("pass")
+
+    if failed("plant_not_deleted"):
+        lines.append(
+            "plant_not_deleted: expected has_plant to stay true once it is true, "
+            f"and the log to keep id {plant_id!r}. Found has_plant flags {flags}, "
+            f"record.plant.id {record_plant!r}, and log ids {ids}."
+        )
+    if failed("question_is_false"):
+        lines.append(
+            "question_is_false: expected earlier "
+            f"{plant_id!r} to start after later {later_id!r}, so the order claim is false. "
+            f"Found claim {claim} and log ids {ids}."
+            + (f" Missing from the log: {missing}." if missing else "")
+        )
+    if failed("key_matches_log"):
+        lines.append(
+            "key_matches_log: expected writer_key to equal the key computed from the log. "
+            f"Found writer_key {trap.get('writer_key')!r} and computed key {key!r}."
+            + (" No key, because the claim names an id the log does not list." if key is None else "")
+        )
+    if failed("no_single_frame_shortcut"):
+        lines.append(
+            "no_single_frame_shortcut: expected log ids for both "
+            f"{plant_id!r} and {later_id!r} so one frame cannot answer the order. Found log ids {ids}."
+        )
+    if failed("frame_order_sensitive"):
+        lines.append(
+            "frame_order_sensitive: expected reversing time to change the key for earlier "
+            f"{plant_id!r} and later {later_id!r}. Found computed key {key!r} and log ids {ids}."
+        )
+    if failed("text_does_not_solve"):
+        lines.append(
+            "text_does_not_solve: expected a computed key, and a question that does not contain it. "
+            f"Found computed key {key!r}. Question: {trap.get('question')!r}."
+        )
+    if failed("options_unbiased"):
+        lines.append(
+            "options_unbiased: expected answers to hold the computed key once, and the other answer "
+            f"within 11 characters of its length. Found key {key!r} and answers {answers}."
+        )
+    if failed("published_index"):
+        lines.append(
+            "published_index: expected correct_answer to point at the computed key. "
+            f"Found correct_answer {trap.get('correct_answer')!r}, answers {answers}, key {key!r}."
+        )
+    covered = {
+        "plant_not_deleted", "question_is_false", "key_matches_log", "no_single_frame_shortcut",
+        "frame_order_sensitive", "text_does_not_solve", "options_unbiased", "published_index",
+    }
+    plant_gates = {
+        "plant_in_frames", "plant_visible", "plant_survives_1fps", "plant_survives_encode", "nearby_anchor",
+    }
+    if any(failed(name) for name in plant_gates):
+        record_frames = list((record.get("plant") or {}).get("frames") or [])
+        logged_frames = []
+        for frame in log.get("frames") or []:
+            if any(obj.get("id") == plant_id for obj in frame.get("objects") or []):
+                logged_frames.append(frame.get("index"))
+        lines.append(
+            "plant_in_frames: expected record.plant.id "
+            f"{plant_id!r} and those frames to match the log frames for that same id. "
+            f"Found record.plant.id {record_plant!r} with {len(record_frames)} frames, "
+            f"while the log lists {plant_id!r} on {len(logged_frames)} frames and the other ids are {ids}. "
+            f"Set record.plant.id to {plant_id!r} and leave the logged {plant_id!r} frames in place."
+        )
+        covered |= plant_gates
+    for name, item in hard.items():
+        if name in covered or not isinstance(item, dict) or item.get("pass"):
+            continue
+        lines.append(f"{name}: {item.get('detail')}")
+    if not picture.get("picture"):
+        lines.append("picture: expected the plant color on every brief plant frame of the decoded mp4. Found " + str(picture.get("reason")))
     return lines
 
 
@@ -517,6 +678,158 @@ def run_repair(brief: dict, model: str, out_dir: Path, session: str, rounds: int
     return summary
 
 
+def _copy_run(src: Path, dest: Path) -> None:
+    dest.mkdir(parents=True, exist_ok=True)
+    for name in _KEEP_NAMES:
+        file = src / name
+        if file.exists():
+            shutil.copy2(file, dest / name)
+    frames = dest / "frames"
+    frames.mkdir(parents=True, exist_ok=True)
+    if (src / "frames").exists():
+        for image in (src / "frames").glob("f_*.png"):
+            shutil.copy2(image, frames / image.name)
+
+
+def _crash_text(trace: Trace) -> str:
+    for event in reversed(trace.events):
+        if event.get("event") == "render_done" and event.get("exit") not in (0, None):
+            return str(event.get("stderr") or "the script failed")
+    return "the script failed"
+
+
+def _arm(summary: dict) -> dict:
+    """The first reply, before any retry, so a later save is not mistaken for it."""
+    return {
+        "first_valid": bool(summary.get("valid_clip")),
+        "first_strict_pass": bool(summary.get("strict_pass")),
+        "first_strict_passed": summary.get("strict_passed"),
+        "first_picture": bool(summary.get("picture")),
+        "first_failed": list(summary.get("failed") or []),
+    }
+
+
+def _better_clip(new: dict, old: dict) -> bool:
+    return (
+        int(bool(new.get("valid_clip"))),
+        int(bool(new.get("strict_pass"))),
+        int(new.get("strict_passed") or 0),
+        int(bool(new.get("picture"))),
+    ) > (
+        int(bool(old.get("valid_clip"))),
+        int(bool(old.get("strict_pass"))),
+        int(old.get("strict_passed") or 0),
+        int(bool(old.get("picture"))),
+    )
+
+
+def run_crash_retry(brief: dict, model: str, out_dir: Path, session: str, rounds: int = 2) -> dict:
+    """Same first reply as one-shot. A crashed script gets the traceback, and no other hint."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    trace = Trace()
+    plant_id = brief["plant"]["id"]
+    prompt = (
+        packet(brief)
+        + "\n\nIn this single reply, write the record in a ```json fence and the drawing script in a ```python fence."
+    )
+    messages = [{"role": "user", "content": prompt}]
+    text = _ask_messages(model, messages, session, trace, "one_shot", 6000)
+    messages.append({"role": "assistant", "content": text})
+    _apply_reply(out_dir, brief, text, trace, plant_id, "one_shot")
+    trace.add("snapshot", kind="log", has_plant=_log_plant(out_dir, plant_id))
+    summary = _finish(out_dir, brief, trace, "crash", model, "model_code")
+    _snapshot(out_dir, 0)
+    best = summary
+    best_n = 0
+    used = 0
+    first = _arm(summary)
+    for round_i in range(1, rounds + 1):
+        if summary.get("valid_clip"):
+            break
+        used = round_i
+        feedback = "The script failed.\n" + _crash_text(trace)
+        messages.append({"role": "user", "content": feedback})
+        text = _ask_messages(model, messages, session, trace, f"crash-{round_i}", 6000)
+        messages.append({"role": "assistant", "content": text})
+        _apply_reply(out_dir, brief, text, trace, plant_id, "crash")
+        trace.add("snapshot", kind="log", has_plant=_log_plant(out_dir, plant_id))
+        summary = _finish(out_dir, brief, trace, "crash", model, "model_code")
+        _snapshot(out_dir, round_i)
+        if _better_clip(summary, best):
+            best = summary
+            best_n = round_i
+    if best_n != used:
+        _restore(out_dir, best_n)
+        summary = json.loads((out_dir / "fair-score.json").read_text())["summary"]
+    summary["repairs_used"] = used
+    summary["kept_attempt"] = best_n
+    summary["mode"] = "crash"
+    summary.update(first)
+    (out_dir / "fair-score.json").write_text(json.dumps({"summary": summary}, indent=2))
+    return summary
+
+
+def run_concrete_saved(brief: dict, model: str, src: Path, out_dir: Path, session: str, rounds: int = 2) -> dict:
+    """Retry a saved clip. The new notes say what was expected and what was found."""
+    _copy_run(src, out_dir)
+    saved = json.loads((out_dir / "fair-score.json").read_text())
+    summary = dict(saved["summary"])
+    if "valid_clip" not in summary:
+        summary["valid_clip"] = (out_dir / "clip.mp4").exists()
+    strict = _scored(out_dir, saved)
+    picture = summary.get("picture_detail") or {"picture": summary.get("picture"), "reason": ""}
+    _snapshot(out_dir, 0)
+    best = summary
+    best_n = 0
+    used = 0
+    first = _arm(summary)
+    plant_id = brief["plant"]["id"]
+    for round_i in range(1, rounds + 1):
+        if summary.get("strict_pass") and summary.get("picture"):
+            break
+        lines = concrete_lines(out_dir, brief, strict, picture)
+        if not lines:
+            break
+        (out_dir / f"concrete-notes-{round_i}.txt").write_text("\n".join(lines) + "\n")
+        record_text = (out_dir / "record.json").read_text() if (out_dir / "record.json").exists() else ""
+        script_text = (out_dir / "scene.py").read_text() if (out_dir / "scene.py").exists() else ""
+        feedback = (
+            "Checks that failed:\n"
+            + "\n".join(f"- {line}" for line in lines)
+            + "\n\nCurrent record:\n"
+            + record_text
+            + "\n\nCurrent script:\n"
+            + script_text
+            + "\n\nReply with the corrected record in a ```json fence and the full drawing script in a ```python fence. "
+            + "The script must still write the frames, log.json, and trap.json."
+        )
+        trace = Trace()
+        if (out_dir / "record.json").exists():
+            kept = _read_json(out_dir / "record.json")
+            trace.add("record", has_plant=_plant_flag(kept, plant_id), source="kept")
+        text = _ask_messages(model, [{"role": "user", "content": feedback}], session, trace, f"concrete-{round_i}", 6000)
+        _apply_reply(out_dir, brief, text, trace, plant_id, "concrete")
+        trace.add("snapshot", kind="log", has_plant=_log_plant(out_dir, plant_id))
+        summary = _finish(out_dir, brief, trace, "concrete", model, "model_code")
+        packed = json.loads((out_dir / "fair-score.json").read_text())
+        strict = packed.get("strict") or {}
+        picture = summary.get("picture_detail") or {}
+        _snapshot(out_dir, round_i)
+        used = round_i
+        if _better_clip(summary, best):
+            best = summary
+            best_n = round_i
+    if best_n != used:
+        _restore(out_dir, best_n)
+        summary = json.loads((out_dir / "fair-score.json").read_text())["summary"]
+    summary["repairs_used"] = used
+    summary["kept_attempt"] = best_n
+    summary["mode"] = "concrete"
+    summary.update(first)
+    (out_dir / "fair-score.json").write_text(json.dumps({"summary": summary}, indent=2))
+    return summary
+
+
 def self_check() -> None:
     text = "```json\n{\"scene_id\": \"x\", \"plant\": {\"id\": \"fern\", \"frames\": [1]}}\n```\n```python\nimport sys\nprint(1)\n```"
     record, script, record_first = split_reply(text)
@@ -543,6 +856,20 @@ def self_check() -> None:
     told = facts(sample)
     if "frames [0, 1, 2, 3," not in told or "through" in told.split("frames [")[-1][:40]:
         raise SystemExit("facts still describe a frame span instead of each index")
+    cafe = Path("/cursor/stores/bc-f9fe9480-5b96-4277-be5d-c761609be7ed/media/cafe-spoon/repair/schema-1")
+    if (cafe / "record.json").exists() and (cafe / "log.json").exists():
+        packed = json.loads((cafe / "fair-score.json").read_text()) if (cafe / "fair-score.json").exists() else {"summary": {}}
+        lines = concrete_lines(
+            cafe,
+            load_brief("cafe-spoon"),
+            _scored(cafe, packed),
+            packed.get("summary", {}).get("picture_detail") or {"picture": True, "reason": ""},
+        )
+        blob = "\n".join(lines)
+        if "spoon" not in blob or "record.plant.id" not in blob:
+            raise SystemExit(f"concrete notes did not name the found plant id: {blob}")
+        if "cup" not in blob:
+            raise SystemExit(f"concrete notes did not name the missing later id: {blob}")
     print("fair self-check ok")
 
 
@@ -552,10 +879,11 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--selfcheck", action="store_true")
     parser.add_argument("--scene")
-    parser.add_argument("--mode", choices=["one-shot", "staged", "repair"])
+    parser.add_argument("--mode", choices=["one-shot", "staged", "repair", "crash", "concrete"])
     parser.add_argument("--model", default="space-bunny-free")
     parser.add_argument("--media", type=Path)
     parser.add_argument("--pass-id", default="fair-1")
+    parser.add_argument("--source", type=Path)
     args = parser.parse_args()
     if args.selfcheck:
         self_check()
@@ -569,6 +897,12 @@ def main() -> None:
         summary = run_one_shot(brief, args.model, out, session)
     elif args.mode == "repair":
         summary = run_repair(brief, args.model, out, session)
+    elif args.mode == "crash":
+        summary = run_crash_retry(brief, args.model, out, session)
+    elif args.mode == "concrete":
+        if args.source is None:
+            raise SystemExit("--source is required for concrete")
+        summary = run_concrete_saved(brief, args.model, args.source, out, session)
     else:
         summary = run_staged(brief, args.model, out, session)
     print(json.dumps(summary))

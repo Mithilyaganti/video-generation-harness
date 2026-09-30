@@ -1,0 +1,80 @@
+{
+  "scene_id": "diner-bottle",
+  "tell_frames": false,
+  "setting": "a diner counter",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#1a1420",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A menu is visible for about the first second, then it is gone. Later, a bottle appears and stays for about two seconds, then it is gone. The bottle does not appear before the menu. A counter stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "counter",
+      "kind": "counter",
+      "color": "#c9a27a",
+      "shape": "box",
+      "x": 14,
+      "y": 116,
+      "w": 90,
+      "h": 44,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "menu",
+      "kind": "menu",
+      "color": "#4aa3ff",
+      "shape": "box",
+      "x": 22,
+      "y": 16,
+      "w": 60,
+      "h": 52,
+      "from_frame": 0,
+      "to_frame": 9
+    },
+    {
+      "id": "bottle",
+      "kind": "bottle",
+      "color": "#9be7c4",
+      "shape": "box",
+      "x": 200,
+      "y": 26,
+      "w": 52,
+      "h": 78,
+      "from_frame": 18,
+      "to_frame": 41
+    }
+  ],
+  "plant": {
+    "id": "bottle",
+    "kind": "bottle",
+    "color": "#9be7c4",
+    "shape": "box",
+    "x": 200,
+    "y": 26,
+    "w": 52,
+    "h": 78,
+    "from_frame": 18,
+    "to_frame": 41,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the bottle appear before the menu?",
+    "asked_id": "bottle",
+    "asked_kind": "bottle",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The menu is already open when the bottle shows up.",
+    "nearby_id": "counter",
+    "earlier": "bottle",
+    "later": "menu",
+    "true_key": "The bottle appears before the menu."
+  }
+}

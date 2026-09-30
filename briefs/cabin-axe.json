@@ -1,0 +1,80 @@
+{
+  "scene_id": "cabin-axe",
+  "tell_frames": false,
+  "setting": "a cabin porch",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#241810",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A lamp is visible for about the first second, then it is gone. Later, a axe appears and stays for about two seconds, then it is gone. The axe does not appear before the lamp. A stump stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "stump",
+      "kind": "stump",
+      "color": "#c48a4a",
+      "shape": "box",
+      "x": 20,
+      "y": 114,
+      "w": 70,
+      "h": 46,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "lamp",
+      "kind": "lamp",
+      "color": "#f0d060",
+      "shape": "box",
+      "x": 18,
+      "y": 14,
+      "w": 52,
+      "h": 60,
+      "from_frame": 1,
+      "to_frame": 11
+    },
+    {
+      "id": "axe",
+      "kind": "axe",
+      "color": "#dfe3ea",
+      "shape": "box",
+      "x": 188,
+      "y": 22,
+      "w": 84,
+      "h": 70,
+      "from_frame": 16,
+      "to_frame": 39
+    }
+  ],
+  "plant": {
+    "id": "axe",
+    "kind": "axe",
+    "color": "#dfe3ea",
+    "shape": "box",
+    "x": 188,
+    "y": 22,
+    "w": 84,
+    "h": 70,
+    "from_frame": 16,
+    "to_frame": 39,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the axe appear before the lamp?",
+    "asked_id": "axe",
+    "asked_kind": "axe",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The lamp is already glowing when the axe shows up.",
+    "nearby_id": "stump",
+    "earlier": "axe",
+    "later": "lamp",
+    "true_key": "The axe appears before the lamp."
+  }
+}

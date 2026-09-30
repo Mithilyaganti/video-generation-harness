@@ -1,0 +1,80 @@
+{
+  "scene_id": "kiln-glaze",
+  "tell_frames": false,
+  "setting": "a kiln shelf",
+  "width": 320,
+  "height": 180,
+  "fps": 12,
+  "frame_count": 48,
+  "background": "#281410",
+  "camera": {
+    "kind": "static",
+    "pixels": 0
+  },
+  "rule": "A flame is visible for about the first second, then it is gone. Later, a glaze appears and stays for about two seconds, then it is gone. The glaze does not appear before the flame. A shelf stays in place for the whole clip.",
+  "objects": [
+    {
+      "id": "shelf",
+      "kind": "shelf",
+      "color": "#c4a484",
+      "shape": "box",
+      "x": 14,
+      "y": 118,
+      "w": 110,
+      "h": 36,
+      "from_frame": 0,
+      "to_frame": 47
+    }
+  ],
+  "events": [
+    {
+      "id": "flame",
+      "kind": "flame",
+      "color": "#ff7a3c",
+      "shape": "box",
+      "x": 20,
+      "y": 18,
+      "w": 48,
+      "h": 56,
+      "from_frame": 0,
+      "to_frame": 11
+    },
+    {
+      "id": "glaze",
+      "kind": "glaze",
+      "color": "#7fd0e0",
+      "shape": "box",
+      "x": 196,
+      "y": 32,
+      "w": 78,
+      "h": 58,
+      "from_frame": 17,
+      "to_frame": 40
+    }
+  ],
+  "plant": {
+    "id": "glaze",
+    "kind": "glaze",
+    "color": "#7fd0e0",
+    "shape": "box",
+    "x": 196,
+    "y": 32,
+    "w": 78,
+    "h": 58,
+    "from_frame": 17,
+    "to_frame": 40,
+    "hidden": true
+  },
+  "trap": {
+    "question": "Does the glaze appear before the flame?",
+    "asked_id": "glaze",
+    "asked_kind": "glaze",
+    "asked_attribute": "order",
+    "why_false": "order",
+    "explain": "The flame is already burning when the glaze shows up.",
+    "nearby_id": "shelf",
+    "earlier": "glaze",
+    "later": "flame",
+    "true_key": "The glaze appears before the flame."
+  }
+}
