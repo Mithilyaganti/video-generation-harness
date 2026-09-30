@@ -7,7 +7,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { ClipKeeper, apply as applyLoop, crashFeedback, followupMessage, noteFeedback } from "./clip-loop.mjs";
+import { ClipKeeper, apply as applyLoop, assistantText, crashFeedback, followupMessage, noteFeedback } from "./clip-loop.mjs";
 import {
   THINKING_EFFORT,
   USER_AGENT,
@@ -392,12 +392,33 @@ await check("turn-stopping followup is the traceback only", async () => {
   assert.equal(noteFeedback(["a"], "", "").includes("```json"), true);
 });
 
+await check("assistant text is the current turn", () => {
+  const agent = {
+    session: {
+      seq: 4,
+      eventAt(seq) {
+        return [
+          { type: "turn/start", data: { turn: 1 } },
+          { type: "assistant/message", data: { message: { content: [{ type: "text", text: "old" }] } } },
+          { type: "turn/start", data: { turn: 2 } },
+          { type: "assistant/message", data: { message: { content: [{ type: "text", text: "```python\nprint(1)\n```" }] } } },
+        ][seq];
+      },
+    },
+  };
+  assert.equal(assistantText(agent, 2).includes("print(1)"), true);
+  assert.equal(assistantText(agent, 2).includes("old"), false);
+});
+
 await check("patch does not carry a key", () => {
   const patch = readFileSync(new URL("./cordis.patch.yml", import.meta.url), "utf8");
   assert.equal(patch.includes("oc_sk_"), false);
   assert.equal(patch.includes("vgh-go"), true);
   assert.equal(patch.includes("vgh-save-window"), true);
   assert.equal(patch.includes("vgh-clip-loop"), true);
+  assert.equal(patch.includes("./opencode-go.mjs"), true);
+  assert.equal(patch.includes("./save-window.mjs"), true);
+  assert.equal(patch.includes("./clip-loop.mjs"), true);
   assert.equal(patch.includes("record.json shape"), false);
 });
 

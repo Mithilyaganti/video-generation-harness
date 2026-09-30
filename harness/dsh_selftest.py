@@ -9,7 +9,7 @@ import tempfile
 from pathlib import Path
 
 from harness.briefs import load_brief
-from harness.dsh_bridge import crash_feedback, note_feedback, render, report
+from harness.dsh_bridge import apply_reply, crash_feedback, note_feedback, render, report, score_saved, task_text
 from harness.fair_run import SCHEMA, packet
 from harness.sandbox import run_scene
 
@@ -119,6 +119,28 @@ def main() -> None:
     patch = (ROOT / "dsh" / "cordis.patch.yml").read_text()
     if "oc_sk_" in patch:
         raise SystemExit("the patch file contains a key")
+    for name in ("opencode-go.mjs", "save-window.mjs", "clip-loop.mjs"):
+        if f"./{name}" not in patch or not (ROOT / "dsh" / name).is_file():
+            raise SystemExit(f"plugin patch does not point at {name}")
+    for scene_id in SCENES:
+        told = task_text(load_brief(scene_id))
+        if "```json fence" not in told or "record.json shape" not in told:
+            raise SystemExit(f"{scene_id} dsh task dropped the schema")
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        empty = apply_reply(root / "empty", "orchard-basket", "no fences here")
+        if empty["validClip"] or "The script failed." not in empty["crashText"]:
+            raise SystemExit("a reply with no script counted as a clip")
+        plain = root / "plain"
+        plain.mkdir()
+        (plain / "scene.py").write_text("print('not run')\n", encoding="utf-8")
+        saved = score_saved(plain, "orchard-basket")
+        if saved["valid_clip"] or (plain / "clip.mp4").exists():
+            raise SystemExit("plain scoring ran a script")
+    for name in ("arm-b.patch.yml", "arm-c.patch.yml", "arm-e.patch.yml"):
+        text = (ROOT / "dsh" / name).read_text()
+        if "oc_sk_" in text or "record.json shape" in text:
+            raise SystemExit(f"{name} carries a key or the schema")
     print("dsh plugin selftest ok")
 
 

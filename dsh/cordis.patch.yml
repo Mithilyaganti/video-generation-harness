@@ -4,15 +4,15 @@
 # Do not put it in this file.
 - insert:
     - id: vgh-opencode-go
-      name: ./dsh/opencode-go.mjs
+      name: ./opencode-go.mjs
       config:
         providers:
           - vgh-go
         baseURL: https://opencode.ai/zen/go/v1
     - id: vgh-save-window
-      name: ./dsh/save-window.mjs
+      name: ./save-window.mjs
     - id: vgh-clip-loop
-      name: ./dsh/clip-loop.mjs
+      name: ./clip-loop.mjs
       config:
         crashRounds: 2
         noteRounds: 2

@@ -1,3 +1,10 @@
+import { spawn } from "node:child_process";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { createUserMessage } from "@deepseek-ai/dsh-llm";
+
 /**
  * Crash retry, then expected-versus-found notes.
  *
@@ -118,9 +125,115 @@ export class ClipKeeper {
   }
 }
 
+const KEEP_NAMES = ["record.json", "trap.json", "log.json", "scene.py", "trace.jsonl", "clip.mp4", "fair-score.json"];
+
+export function assistantText(agent, turn) {
+  const session = agent?.session;
+  if (!session || typeof session.seq !== "number" || typeof session.eventAt !== "function") return "";
+  let active = false;
+  const parts = [];
+  for (let seq = 0; seq < session.seq; seq += 1) {
+    const event = session.eventAt(seq);
+    if (!event) continue;
+    if (event.type === "turn/start") {
+      active = turn == null || event.data?.turn === turn;
+      if (active) parts.length = 0;
+      continue;
+    }
+    if (!active || event.type !== "assistant/message") continue;
+    const content = event.data?.message?.content || [];
+    const text = content.filter((block) => block && block.type === "text").map((block) => String(block.text || "")).join("");
+    if (text.trim()) parts.push(text);
+  }
+  return parts.join("\n\n");
+}
+
+function repoRoot() {
+  return fileURLToPath(new URL("..", import.meta.url));
+}
+
+function publishAttempt(src, dest) {
+  mkdirSync(dest, { recursive: true });
+  for (const name of KEEP_NAMES) {
+    const from = join(src, name);
+    if (!existsSync(from)) continue;
+    copyFileSync(from, join(dest, name));
+  }
+  const frames = join(dest, "frames");
+  mkdirSync(frames, { recursive: true });
+  const srcFrames = join(src, "frames");
+  if (!existsSync(srcFrames)) return;
+  for (const name of readdirSync(srcFrames)) {
+    if (name.startsWith("f_") && name.endsWith(".png")) copyFileSync(join(srcFrames, name), join(frames, name));
+  }
+}
+
+export function applyReply(outDir, sceneId, text) {
+  return new Promise((resolve, reject) => {
+    const child = spawn("python3", ["-m", "harness.dsh_bridge", "apply-reply", outDir, sceneId], {
+      cwd: repoRoot(),
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (chunk) => {
+      stdout += chunk.toString();
+    });
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk.toString();
+    });
+    child.on("error", reject);
+    child.on("close", (code) => {
+      if (code !== 0) {
+        reject(new Error(stderr.slice(-800) || `apply-reply exit ${code}`));
+        return;
+      }
+      try {
+        resolve(JSON.parse(stdout));
+      } catch (error) {
+        reject(error);
+      }
+    });
+    child.stdin.write(text);
+    child.stdin.end();
+  });
+}
+
+async function liveAttempt(payload, keeper) {
+  const root = process.env.VGH_OUT;
+  const scene = process.env.VGH_SCENE;
+  const dir = join(root, "attempts", String(keeper.attempt));
+  mkdirSync(dir, { recursive: true });
+  const text = assistantText(payload.agent, payload.turn);
+  try {
+    return await applyReply(dir, scene, text);
+  } catch (error) {
+    return {
+      validClip: false,
+      strictPass: false,
+      strictPassed: 0,
+      picture: false,
+      crashText: crashFeedback(String(error && error.message ? error.message : error).slice(0, 800)),
+      noteLines: [],
+      recordText: "",
+      scriptText: "",
+      shortcuts: { no_video: false, single_frame: false, shuffled: false },
+    };
+  }
+}
+
+function liveMessage(text) {
+  return createUserMessage({
+    content: [{ type: "text", text }],
+    source: { kind: "user" },
+  });
+}
+
 export function apply(ctx, config = {}) {
   const keepers = new Map();
-  const create = config.createMessage || followupMessage;
+  const live = Boolean(process.env.VGH_OUT && process.env.VGH_SCENE);
+  const readAttempt = config.readAttempt || (live ? liveAttempt : null);
+  const create = config.createMessage || (live ? liveMessage : followupMessage);
   ctx.on("agent/turn-stopping", async (payload) => {
     const id = payload.agent?.id ?? "main";
     let keeper = keepers.get(id);
@@ -128,10 +241,24 @@ export function apply(ctx, config = {}) {
       keeper = new ClipKeeper(config);
       keepers.set(id, keeper);
     }
-    const attempt = await config.readAttempt(payload, keeper);
+    if (!readAttempt) throw new Error("clip loop needs readAttempt");
+    const attempt = await readAttempt(payload, keeper);
     const decision = keeper.observe(attempt);
     if (decision.action === "followup") {
       payload.agent.followup(create(decision.text));
+    } else if (live && process.env.VGH_OUT) {
+      const src = join(process.env.VGH_OUT, "attempts", String(decision.kept));
+      if (existsSync(src)) publishAttempt(src, process.env.VGH_OUT);
+      writeFileSync(
+        join(process.env.VGH_OUT, "loop.json"),
+        JSON.stringify({
+          crash_rounds: decision.crashRounds,
+          note_rounds: decision.noteRounds,
+          rounds_used: decision.roundsUsed,
+          kept_attempt: decision.kept,
+          shortcuts: decision.shortcuts,
+        }),
+      );
     }
     return decision;
   });
