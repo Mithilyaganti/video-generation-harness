@@ -285,6 +285,10 @@ def _write_script(out_dir: Path, script: str | None, trace: Trace, plant_id: str
         trace.add("code_rejected", problems=problems)
 
 
+def _as_obj(value):
+    return value if isinstance(value, dict) else {}
+
+
 def _log_plant(out_dir: Path, plant_id: str) -> bool:
     path = out_dir / "log.json"
     if not path.exists():
@@ -293,6 +297,7 @@ def _log_plant(out_dir: Path, plant_id: str) -> bool:
         log = json.loads(path.read_text())
     except json.JSONDecodeError:
         return False
+    log = _as_obj(log)
     for frame in log.get("frames") or []:
         for obj in frame.get("objects") or []:
             if obj.get("id") == plant_id:
@@ -340,8 +345,8 @@ def plant_in_decoded(out_dir: Path, brief: dict) -> dict:
 def _shortcuts(out_dir: Path) -> dict:
     checker = _checker()
     clip = checker.load_clip(out_dir)
-    log = clip.get("log") or {}
-    trap = clip.get("trap") or {}
+    log = _as_obj(clip.get("log"))
+    trap = _as_obj(clip.get("trap"))
     frames = checker.frame_list(log) if log.get("frames") else []
     if not frames or not trap:
         return {"no_video": False, "single_frame": False, "shuffled": False, "reason": "no log or trap"}
@@ -415,6 +420,7 @@ def _read_json(path: Path):
 
 
 def _log_ids(log: dict) -> list[str]:
+    log = _as_obj(log)
     found = []
     seen = set()
     for frame in log.get("frames") or []:
@@ -427,6 +433,7 @@ def _log_ids(log: dict) -> list[str]:
 
 
 def _first_index(log: dict, obj_id: str):
+    log = _as_obj(log)
     for frame in log.get("frames") or []:
         for obj in frame.get("objects") or []:
             if obj.get("id") == obj_id:
@@ -464,9 +471,10 @@ def _scored(out_dir: Path, saved: dict | None = None) -> dict:
 def concrete_lines(out_dir: Path, brief: dict, strict: dict, picture: dict) -> list[str]:
     """Say the expected value and the found value for each failed gate."""
     hard = strict.get("hard") or {}
-    record = _read_json(out_dir / "record.json")
-    log = _read_json(out_dir / "log.json")
-    trap = _read_json(out_dir / "trap.json")
+    record = _as_obj(_read_json(out_dir / "record.json"))
+    raw_log = _read_json(out_dir / "log.json")
+    log = _as_obj(raw_log)
+    trap = _as_obj(_read_json(out_dir / "trap.json"))
     plant_id = brief["plant"]["id"]
     later_id = brief["trap"]["later"]
     record_plant = (record.get("plant") or {}).get("id")
@@ -482,6 +490,11 @@ def concrete_lines(out_dir: Path, brief: dict, strict: dict, picture: dict) -> l
     answers = trap.get("answers")
     flags = _has_plant_flags(out_dir)
     lines = []
+    if raw_log and not isinstance(raw_log, dict):
+        lines.append(
+            "log.json: expected an object with a frames array. "
+            f"Found a {type(raw_log).__name__}."
+        )
 
     def failed(name: str) -> bool:
         item = hard.get(name)

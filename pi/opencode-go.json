@@ -1,0 +1,45 @@
+{
+  "name": "OpenCode Go",
+  "baseUrl": "https://opencode.ai/zen/go/v1",
+  "apiKey": "$OPENCODE_API_KEY",
+  "api": "openai-completions",
+  "authHeader": true,
+  "headers": {
+    "User-Agent": "video-generation-harness/0.1",
+    "x-opencode-session": "$PI_OPENCODE_SESSION"
+  },
+  "models": [
+    {
+      "id": "deepseek-v4.1-flash",
+      "name": "DeepSeek V4.1 Flash",
+      "reasoning": true,
+      "input": ["text"],
+      "cost": { "input": 0.15, "output": 0.6, "cacheRead": 0, "cacheWrite": 0 },
+      "contextWindow": 128000,
+      "maxTokens": 8192,
+      "thinkingLevelMap": { "off": null, "minimal": "low", "low": "low", "medium": "medium", "high": "high" },
+      "compat": {
+        "supportsReasoningEffort": true,
+        "maxTokensField": "max_tokens",
+        "supportsStore": false,
+        "supportsDeveloperRole": false
+      }
+    },
+    {
+      "id": "space-bunny-free",
+      "name": "Space Bunny Free",
+      "reasoning": true,
+      "input": ["text"],
+      "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+      "contextWindow": 128000,
+      "maxTokens": 8192,
+      "thinkingLevelMap": { "off": null, "minimal": "low", "low": "low", "medium": "medium", "high": "high" },
+      "compat": {
+        "supportsReasoningEffort": true,
+        "maxTokensField": "max_tokens",
+        "supportsStore": false,
+        "supportsDeveloperRole": false
+      }
+    }
+  ]
+}
