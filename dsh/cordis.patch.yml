@@ -1,0 +1,18 @@
+# Plugin arms B and E. Arm C is plain dsh and does not load this patch.
+# dsh --profile headless --patch dsh/cordis.patch.yml
+# The key stays in the environment (OPENCODE_API_KEY or OPENCODE_GO_ENV).
+# Do not put it in this file.
+- insert:
+    - id: vgh-opencode-go
+      name: ./opencode-go.mjs
+      config:
+        providers:
+          - vgh-go
+        baseURL: https://opencode.ai/zen/go/v1
+    - id: vgh-save-window
+      name: ./save-window.mjs
+    - id: vgh-clip-loop
+      name: ./clip-loop.mjs
+      config:
+        crashRounds: 2
+        noteRounds: 2
