@@ -255,6 +255,29 @@ def _plant_in_record(record: dict, plant_id: str) -> bool:
     return plant.get("id") == plant_id and bool(plant.get("frames"))
 
 
+def _script_has_plant(script: str, record: dict | None, plant_id: str) -> bool:
+    """The drawing script still has the plant.
+
+    A literal id counts. So does a script that draws the record's plant, or
+    every object, when that object list already contains the plant. A script
+    that never names the plant and never reads it from the record does not.
+    """
+    if plant_id and plant_id in script:
+        return True
+    if not script or not isinstance(record, dict):
+        return False
+    plant = record.get("plant") or {}
+    if plant.get("id") != plant_id:
+        return False
+    if re.search(r"""['"]plant['"]""", script):
+        return True
+    objects = record.get("objects") or []
+    if any(isinstance(obj, dict) and obj.get("id") == plant_id for obj in objects):
+        if re.search(r"""['"]objects['"]""", script):
+            return True
+    return False
+
+
 def _write_trace(work: Path, brief: dict, ran: dict) -> Trace:
     plant_id = brief["plant"]["id"]
     order_path = work / ".pi-write-order.txt"
@@ -278,7 +301,7 @@ def _write_trace(work: Path, brief: dict, ran: dict) -> Trace:
     def emit_code() -> None:
         if not script:
             return
-        trace.add("snapshot", kind="code", has_plant=plant_id in script)
+        trace.add("snapshot", kind="code", has_plant=_script_has_plant(script, record, plant_id))
         trace.add("write_code", path="scene.py")
 
     if code_first:
@@ -639,6 +662,45 @@ def selftest() -> None:
     (listed / "trap.json").write_text("{}", encoding="utf-8")
     from harness.fair_run import _log_plant
 
+    side = {"plant": {"id": "flask", "frames": [15]}, "objects": [{"id": "map"}]}
+    _assert(
+        _script_has_plant('objects = rec["objects"] + [rec["plant"]]', side, "flask"),
+        "a script that draws record.plant was marked deleted",
+    )
+    inside = {"plant": {"id": "badge", "frames": [19]}, "objects": [{"id": "badge"}]}
+    _assert(
+        _script_has_plant('objs = rec["objects"]', inside, "badge"),
+        "a script that draws every object missed a plant stored there",
+    )
+    _assert(not _script_has_plant("print('map')", side, "flask"), "a script that skips the plant counted")
+    _assert(
+        not _script_has_plant('objs = rec["objects"]', side, "flask"),
+        "objects without the plant counted as the plant",
+    )
+    kept = Path(tempfile.mkdtemp(prefix="vgh-record-script-"))
+    (kept / "record.json").write_text(json.dumps(side), encoding="utf-8")
+    (kept / "scene.py").write_text('objects = rec["objects"] + [rec["plant"]]\n', encoding="utf-8")
+    (kept / "log.json").write_text(
+        json.dumps({"frames": [{"index": 15, "objects": [{"id": "flask"}]}]}),
+        encoding="utf-8",
+    )
+    _write_trace(kept, {"plant": {"id": "flask"}, "scene_id": "trail-flask"}, {"exit": 0, "stderr": ""})
+    kept_events = [json.loads(line) for line in (kept / "trace.jsonl").read_text(encoding="utf-8").splitlines()]
+    kept_gate = _checker().check_plant_not_deleted(kept_events)
+    _assert(kept_gate["pass"], "record-driven script failed plant_not_deleted")
+    skipped = Path(tempfile.mkdtemp(prefix="vgh-skipped-plant-"))
+    (skipped / "record.json").write_text(json.dumps(side), encoding="utf-8")
+    (skipped / "scene.py").write_text("print('map')\n", encoding="utf-8")
+    (skipped / "log.json").write_text(
+        json.dumps({"frames": [{"index": 15, "objects": [{"id": "flask"}]}]}),
+        encoding="utf-8",
+    )
+    _write_trace(skipped, {"plant": {"id": "flask"}, "scene_id": "trail-flask"}, {"exit": 0, "stderr": ""})
+    skipped_events = [json.loads(line) for line in (skipped / "trace.jsonl").read_text(encoding="utf-8").splitlines()]
+    skipped_gate = _checker().check_plant_not_deleted(skipped_events)
+    _assert(not skipped_gate["pass"], "a script that skips the plant passed plant_not_deleted")
+    shutil.rmtree(kept, ignore_errors=True)
+    shutil.rmtree(skipped, ignore_errors=True)
     _assert(_log_plant(listed, "token") is False, "a list log counted as frames")
     listed_score = _checker().score_clip(listed)
     _assert("hard" in listed_score, "a list log crashed the checker")
